@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>09. Instructions - X-Stack Letter Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .back-link {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 6px;
+            transition: background 0.3s;
+        }
+        
+        .back-link:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            font-size: 24px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .section h3 {
+            color: #333;
+            font-size: 18px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .section p {
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        
+        .section ul, .section ol {
+            color: #666;
+            line-height: 1.8;
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .section li {
+            margin-bottom: 10px;
+        }
+        
+        .step-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px 20px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .step-box strong {
+            color: #667eea;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px 20px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .info {
+            background: #d1ecf1;
+            border-left: 4px solid #0ea5e9;
+            padding: 15px 20px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="index.html" class="back-link">← Back</a>
+            <h1>📖 09. Instructions</h1>
+            <p>How to use X-Stack Letter Generator and add letters to Outlook</p>
+        </div>
+        
+        <div class="content">
+            <div class="section">
+                <h2>📋 General Usage</h2>
+                <p>The X-Stack Letter Generator helps you create professional email letters for the X-Stack Project Education Course. Each template is designed for a specific purpose:</p>
+                <ul>
+                    <li><strong>01. Initial Email</strong> - Start of a new Run</li>
+                    <li><strong>02. Status Letter</strong> - Detailed status with student information</li>
+                    <li><strong>03. GitHub Copilot</strong> - License management letters</li>
+                    <li><strong>04. Status Update</strong> - Status updates with automatic statistics</li>
+                    <li><strong>05. Final Letter</strong> - Final summary of Run completion</li>
+                </ul>
+            </div>
+            
+            <div class="section">
+                <h2>🔧 How to Use</h2>
+                
+                <div class="step-box">
+                    <strong>Step 1:</strong> Select a template from the main page
+                </div>
+                
+                <div class="step-box">
+                    <strong>Step 2:</strong> Fill in the required fields in the form
+                </div>
+                
+                <div class="step-box">
+                    <strong>Step 3:</strong> For templates that require Excel data (02, 03, 04):
+                    <ul style="margin-top: 10px; margin-left: 20px;">
+                        <li>Copy the table from Excel (select cells and press Ctrl+C / Cmd+C)</li>
+                        <li>Click on the paste area in the form</li>
+                        <li>Paste the data (Ctrl+V / Cmd+V)</li>
+                        <li>The generator will automatically parse and process the data</li>
+                    </ul>
+                </div>
+                
+                <div class="step-box">
+                    <strong>Step 4:</strong> Review the preview on the right side
+                </div>
+                
+                <div class="step-box">
+                    <strong>Step 5:</strong> Use the buttons to:
+                    <ul style="margin-top: 10px; margin-left: 20px;">
+                        <li><strong>🔄 Update Preview</strong> - Refresh the preview</li>
+                        <li><strong>📋 Copy HTML</strong> - Copy the HTML code to clipboard</li>
+                        <li><strong>💾 Download HTML</strong> - Download the HTML file</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>📧 Adding Letters to Outlook</h2>
+                
+                <h3>Method 1: Using HTML Code (Recommended)</h3>
+                <div class="step-box">
+                    <strong>Step 1:</strong> Click <strong>📋 Copy HTML</strong> button in the generator
+                </div>
+                
+                <div class="step-box">
+                    <strong>Step 2:</strong> Open Outlook and create a new email
+                </div>
+                
+                <div class="step-box">
+                    <strong>Step 3:</strong> In the email body, right-click and select <span class="highlight">Paste Special</span> or press <span class="highlight">Ctrl+Shift+V</span> (Windows) / <span class="highlight">Cmd+Shift+V</span> (Mac)
+                </div>
+                
+                <div class="step-box">
+                    <strong>Step 4:</strong> Choose <span class="highlight">HTML Format</span> or <span class="highlight">Unformatted Text</span> and paste
+                </div>
+                
+                <div class="step-box">
+                    <strong>Alternative:</strong> You can also:
+                    <ul style="margin-top: 10px; margin-left: 20px;">
+                        <li>Click on the email body</li>
+                        <li>Press <span class="highlight">Ctrl+V</span> / <span class="highlight">Cmd+V</span> to paste</li>
+                        <li>Outlook should automatically recognize HTML formatting</li>
+                    </ul>
+                </div>
+                
+                <h3>Method 2: Using Downloaded HTML File</h3>
+                <div class="step-box">
+                    <strong>Step 1:</strong> Click <strong>💾 Download HTML</strong> button to save the file
+                </div>
+                
+                <div class="step-box">
+                    <strong>Step 2:</strong> Open the downloaded HTML file in a web browser
+                </div>
+                
+                <div class="step-box">
+                    <strong>Step 3:</strong> Select all content (Ctrl+A / Cmd+A) and copy (Ctrl+C / Cmd+C)
+                </div>
+                
+                <div class="step-box">
+                    <strong>Step 4:</strong> Paste into Outlook email body
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>💡 Tips & Best Practices</h2>
+                
+                <div class="info">
+                    <strong>📊 Excel Data Format:</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Make sure your Excel table has headers in the first row</li>
+                        <li>Required columns vary by template (check the paste area for expected columns)</li>
+                        <li>Copy the entire table including headers</li>
+                        <li>The generator automatically detects columns by header names</li>
+                    </ul>
+                </div>
+                
+                <div class="info">
+                    <strong>📅 Date Format:</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Use the date picker to select dates</li>
+                        <li>Dates are automatically formatted in the generated letter</li>
+                    </ul>
+                </div>
+                
+                <div class="warning">
+                    <strong>⚠️ Important Notes:</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Always review the preview before copying/downloading</li>
+                        <li>Check that all data was parsed correctly</li>
+                        <li>Verify statistics and counts are accurate</li>
+                        <li>If data doesn't appear, check the Excel table format</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>🔍 Troubleshooting</h2>
+                
+                <h3>Data not appearing after paste?</h3>
+                <ul>
+                    <li>Make sure you copied the entire table including headers</li>
+                    <li>Check that column names match expected names (case-insensitive)</li>
+                    <li>Try copying again - sometimes clipboard data needs to be refreshed</li>
+                </ul>
+                
+                <h3>Preview not updating?</h3>
+                <ul>
+                    <li>Click <strong>🔄 Update Preview</strong> button manually</li>
+                    <li>Check that all required fields are filled</li>
+                    <li>Verify dates are selected correctly</li>
+                </ul>
+                
+                <h3>HTML not displaying correctly in Outlook?</h3>
+                <ul>
+                    <li>Use "Paste Special" and select HTML format</li>
+                    <li>Make sure you're pasting into the email body, not subject line</li>
+                    <li>Try the alternative method of opening HTML file in browser first</li>
+                </ul>
+            </div>
+            
+            <div class="section">
+                <h2>📞 Support</h2>
+                <p>If you encounter any issues or have questions, please contact:</p>
+                <p><strong>Developer:</strong> <a href="mailto:Oleksandr_Tkachenko3@epam.com">Oleksandr Tkachenko</a></p>
+            </div>
+        </div>
+        
+        <div style="text-align: center; padding: 20px; background: #f8f9fa; border-top: 1px solid #e0e0e0; color: #666; font-size: 12px;">
+            <p style="margin: 0;">Developer: <a href="mailto:Oleksandr_Tkachenko3@epam.com" style="color: #667eea; text-decoration: none;">Oleksandr Tkachenko</a></p>
+        </div>
+    </div>
+</body>
+</html>
+

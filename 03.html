@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+    <html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>03. GitHub Copilot - X-Stack Letter Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .back-link {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 6px;
+            transition: background 0.3s;
+        }
+        
+        .back-link:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+        
+        @media (max-width: 1200px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .form-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .form-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        input[type="text"],
+        input[type="date"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .paste-area {
+            min-height: 150px;
+            padding: 15px;
+            border: 2px dashed #667eea;
+            border-radius: 6px;
+            background: #f8f9fa;
+            cursor: text;
+            transition: all 0.3s;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .paste-area:hover {
+            background: #f0f4ff;
+            border-color: #5568d3;
+        }
+        
+        .paste-area.has-data {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+        
+        .paste-area p {
+            color: #666;
+            margin: 10px 0;
+            text-align: center;
+        }
+        
+        .paste-area strong {
+            color: #667eea;
+        }
+        
+        .preview-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .preview-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .preview-container {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 20px;
+            max-height: 800px;
+            overflow-y: auto;
+        }
+        
+        .actions {
+            padding: 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+        
+        .data-preview {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 6px;
+            border: 2px solid #10b981;
+            max-height: 400px;
+            overflow-y: auto;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        #copilotDataPreview {
+            margin-top: 15px;
+        }
+        
+        #copilotDataPreview h3 {
+            color: #10b981;
+            font-size: 18px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .data-preview table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        
+        .data-preview th,
+        .data-preview td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .data-preview th {
+            background: #f8f9fa;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="index.html" class="back-link">← Back</a>
+            <h1>🔑 03. GitHub Copilot Licenses</h1>
+            <p>GitHub Copilot license management letter generator</p>
+        </div>
+        
+        <div class="content">
+            <!-- Form Section -->
+            <div class="form-section">
+                <h2>📝 Enter Data</h2>
+                
+                <div id="copilotAlerts"></div>
+                
+                <form id="copilotForm">
+                    <!-- Basic Info -->
+                    <div class="form-group">
+                        <label for="recipientName">Recipient Name:</label>
+                        <input type="text" id="recipientName" value="Sabina" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="projectName">Project Name:</label>
+                        <input type="text" id="projectName" value="EPM-EDAI (Run 10)" required>
+                    </div>
+                    
+                    <!-- Dates -->
+                    <div class="form-group">
+                        <label for="effectiveFrom">Effective from:</label>
+                        <input type="date" id="effectiveFrom" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="effectiveTo">Effective to:</label>
+                        <input type="date" id="effectiveTo" required>
+                    </div>
+                    
+                    <!-- Excel Table Paste -->
+                    <div class="form-group">
+                        <label>Paste table from Excel (Ctrl+V or Cmd+V):</label>
+                        <div class="paste-area" id="copilotPasteArea" tabindex="0" contenteditable="true" style="min-height: 150px;">
+                            <p><strong>Click here and paste the table</strong></p>
+                            <p style="font-size: 12px; color: #999;">Expected columns: Student, EPAM Email</p>
+                        </div>
+                        <div id="copilotDataPreview" class="hidden"></div>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Preview Section -->
+            <div class="preview-section">
+                <h2>👁️ Preview</h2>
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <button class="btn btn-primary" id="generateBtn" onclick="generateCopilotLetter()">🔄 Update Preview</button>
+                    <button class="btn btn-success" id="copyBtn" onclick="copyCopilotHTML()">📋 Copy HTML</button>
+                    <button class="btn btn-secondary" id="downloadBtn" onclick="downloadCopilotHTML()">💾 Download HTML</button>
+                    <button class="btn" style="background: #f59e0b; color: white; border: none;" onclick="window.open('09.html', '_blank')">📖 Instructions</button>
+                </div>
+                <div class="preview-container" id="copilotPreview">
+                    <div class="loading">Paste data from Excel to generate the letter</div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="htmlOutput" class="hidden">
+            <textarea id="htmlCode" readonly></textarea>
+        </div>
+        
+        <div style="text-align: center; padding: 20px; background: #f8f9fa; border-top: 1px solid #e0e0e0; color: #666; font-size: 12px;">
+            <p style="margin: 0;">Developer: <a href="mailto:Oleksandr_Tkachenko3@epam.com" style="color: #667eea; text-decoration: none;">Oleksandr Tkachenko</a></p>
+        </div>
+    </div>
+    
+    <script>
+        // GitHub Copilot data
+        let copilotData = [];
+        let isParsingCopilot = false;
+        
+        // Paste area handling for Copilot
+        const copilotPasteArea = document.getElementById('copilotPasteArea');
+        
+        copilotPasteArea.addEventListener('click', () => {
+            copilotPasteArea.focus();
+        });
+        
+        copilotPasteArea.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+            console.log('Copilot Paste event - pasted text length:', pastedText.length);
+            
+            // Check if pasted text is placeholder or status message
+            const placeholderTexts = ['Data pasted', 'processing', 'Click here', 'Expected columns', 'Successfully loaded'];
+            const isPlaceholder = placeholderTexts.some(placeholder => pastedText.toLowerCase().includes(placeholder.toLowerCase()));
+            
+            if (isPlaceholder || pastedText.trim().length < 50) {
+                console.log('Copilot Paste event: Ignoring placeholder or too short text');
+                showCopilotAlert('⚠️ Please paste actual Excel data, not status messages', 'warning');
+                copilotPasteArea.innerHTML = `
+                    <p><strong>Click here and paste the table</strong></p>
+                    <p style="font-size: 12px; color: #999;">Expected columns: Student, EPAM Email</p>
+                `;
+                return;
+            }
+            
+            // Prevent double parsing
+            if (isParsingCopilot) {
+                console.log('Copilot Paste event: Already parsing, skipping');
+                return;
+            }
+            
+            isParsingCopilot = true;
+            copilotPasteArea.innerHTML = '<p style="color: #10b981;"><strong>✅ Data pasted, processing...</strong></p>';
+            parseCopilotData(pastedText);
+        });
+        
+        function parseCopilotData(text) {
+            try {
+                if (!text || !text.trim()) {
+                    showCopilotAlert('Error: No data to process', 'error');
+                    isParsingCopilot = false;
+                    return;
+                }
+                
+                const lines = text.split('\n').filter(line => line.trim());
+                if (lines.length === 0) {
+                    showCopilotAlert('Error: No data to process', 'error');
+                    isParsingCopilot = false;
+                    return;
+                }
+                
+                // Parse header
+                const headerLine = lines[0];
+                let headers = headerLine.split('\t').map(h => h.trim());
+                if (headers.length === 1) {
+                    headers = headerLine.split(/[;,\t]/).map(h => h.trim());
+                }
+                
+                // Find column indices
+                const studentIdx = findColumnIndex(headers, ['student', 'name']);
+                const emailIdx = findColumnIndex(headers, ['email', 'epam email', 'epam_email']);
+                
+                if (studentIdx === -1) {
+                    showCopilotAlert('Error: Student column not found', 'error');
+                    isParsingCopilot = false;
+                    copilotPasteArea.innerHTML = `
+                        <p><strong>Click here and paste the table</strong></p>
+                        <p style="font-size: 12px; color: #999;">Expected columns: Student, EPAM Email</p>
+                    `;
+                    return;
+                }
+                
+                // Parse data rows
+                copilotData = [];
+                for (let i = 1; i < lines.length; i++) {
+                    let cells = lines[i].split('\t').map(c => c.trim());
+                    if (cells.length === 1) {
+                        cells = lines[i].split(/[;,\t]/).map(c => c.trim());
+                    }
+                    
+                    if (cells.length > studentIdx) {
+                        const rowData = {
+                            student: cells[studentIdx] || '',
+                            email: emailIdx !== -1 && cells.length > emailIdx ? (cells[emailIdx] || '') : ''
+                        };
+                        if (rowData.student) {
+                            copilotData.push(rowData);
+                        }
+                    }
+                }
+                
+                // Update UI
+                copilotPasteArea.innerHTML = `<p style="color: #10b981;"><strong>✅ Successfully loaded ${copilotData.length} records</strong></p>`;
+                copilotPasteArea.classList.add('has-data');
+                updateCopilotDataPreview();
+                showCopilotAlert(`Successfully loaded ${copilotData.length} records`, 'success');
+                
+                // Auto-generate letter
+                if (copilotData.length > 0) {
+                    setTimeout(() => {
+                        generateCopilotLetter();
+                    }, 100);
+                }
+                
+                setTimeout(() => {
+                    isParsingCopilot = false;
+                }, 500);
+            } catch (error) {
+                isParsingCopilot = false;
+                showCopilotAlert('Data processing error: ' + error.message, 'error');
+                console.error(error);
+            }
+        }
+        
+        function findColumnIndex(headers, possibleNames) {
+            for (let i = 0; i < headers.length; i++) {
+                const header = headers[i].toLowerCase();
+                for (const name of possibleNames) {
+                    if (header.includes(name.toLowerCase())) {
+                        return i;
+                    }
+                }
+            }
+            return -1;
+        }
+        
+        function updateCopilotDataPreview() {
+            const preview = document.getElementById('copilotDataPreview');
+            if (!preview) return;
+            
+            if (!copilotData || copilotData.length === 0) {
+                preview.classList.add('hidden');
+                return;
+            }
+            
+            const effectiveFrom = document.getElementById('effectiveFrom').value;
+            const effectiveTo = document.getElementById('effectiveTo').value;
+            const fromDate = effectiveFrom ? formatDateForEmailWithYear(effectiveFrom) : 'Not set';
+            const toDate = effectiveTo ? formatDateForEmailWithYear(effectiveTo) : 'Not set';
+            
+            let html = '<h3 style="margin-bottom: 15px; color: #10b981; font-size: 18px; font-weight: 600;">📊 Data Preview (' + copilotData.length + ' records):</h3>';
+            html += '<div class="data-preview"><table>';
+            html += '<thead><tr><th>Student</th><th>EPAM Email</th><th>Effective from</th><th>Effective to</th></tr></thead>';
+            html += '<tbody>';
+            
+            copilotData.slice(0, 10).forEach(row => {
+                html += `<tr>
+                    <td>${escapeHtml(row.student || '')}</td>
+                    <td>${escapeHtml(row.email || '')}</td>
+                    <td>${fromDate}</td>
+                    <td>${toDate}</td>
+                </tr>`;
+            });
+            
+            if (copilotData.length > 10) {
+                html += `<tr><td colspan="4" style="text-align: center; color: #999;">... and ${copilotData.length - 10} more records</td></tr>`;
+            }
+            
+            html += '</tbody></table></div>';
+            preview.innerHTML = html;
+            preview.classList.remove('hidden');
+            preview.style.display = 'block';
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function generateCopilotLetter() {
+            const recipientName = document.getElementById('recipientName').value;
+            const projectName = document.getElementById('projectName').value;
+            const effectiveFrom = document.getElementById('effectiveFrom').value;
+            const effectiveTo = document.getElementById('effectiveTo').value;
+            
+            if (!recipientName || !projectName || !effectiveFrom || !effectiveTo) {
+                showCopilotAlert('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            if (!copilotData || copilotData.length === 0) {
+                showCopilotAlert('Please paste student data from Excel', 'error');
+                return;
+            }
+            
+            const html = generateCopilotHTML(recipientName, projectName, effectiveFrom, effectiveTo, copilotData);
+            
+            // Update preview
+            const preview = document.getElementById('copilotPreview');
+            const iframe = document.createElement('iframe');
+            iframe.style.width = '100%';
+            iframe.style.height = '800px';
+            iframe.style.border = 'none';
+            preview.innerHTML = '';
+            preview.appendChild(iframe);
+            iframe.srcdoc = html;
+            
+            // Store HTML
+            document.getElementById('htmlCode').value = html;
+        }
+        
+        function formatDateForEmailWithYear(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString + 'T12:00:00'); // Use noon to avoid timezone issues
+            if (isNaN(date.getTime())) return '';
+            const day = date.getDate();
+            const year = date.getFullYear();
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'];
+            const month = monthNames[date.getMonth()];
+            return `${month} ${day}, ${year}`;
+        }
+        
+        function generateCopilotHTML(recipientName, projectName, effectiveFrom, effectiveTo, students) {
+            const fromDate = formatDateForEmailWithYear(effectiveFrom);
+            const toDate = formatDateForEmailWithYear(effectiveTo);
+            
+            let studentsList = '';
+            students.forEach(student => {
+                studentsList += `<tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;">${escapeHtml(student.student || '')}</td>
+                    <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;">${escapeHtml(student.email || '')}</td>
+                    <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;">${fromDate}</td>
+                    <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;">${toDate}</td>
+                </tr>`;
+            });
+            
+            return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Copilot Licenses - ${escapeHtml(projectName)}</title>
+    <!--[if mso]>
+    <style type="text/css">
+        body, table, td {font-family: Arial, sans-serif !important;}
+    </style>
+    <![endif]-->
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; background-color: #f5f5f5;">
+    <table cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f5f5f5; padding: 20px 0;">
+        <tr>
+            <td align="center">
+                <table cellspacing="0" cellpadding="0" border="0" width="600" style="background-color: #ffffff; border: 1px solid #e0e0e0;">
+                    <!-- Header -->
+                    <tr>
+                        <td style="background-color: #6366f1; padding: 30px 40px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%); background-color: #6366f1;">
+                            <table cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <tr>
+                                    <td>
+                                        <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: bold; font-family: Arial, sans-serif; text-shadow: 0 1px 2px rgba(0,0,0,0.1);">
+                                            X-Stack Project Education Course
+                                        </h1>
+                                        <p style="margin: 8px 0 0 0; color: #f3f4f6; font-size: 16px; font-family: Arial, sans-serif;">
+                                            GitHub Copilot Licenses Request
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 30px 40px;">
+                            <p style="margin: 0 0 15px 0; color: #333333; font-size: 16px; line-height: 1.6; font-family: Arial, sans-serif;">
+                                Dear ${escapeHtml(recipientName)},
+                            </p>
+                            <p style="margin: 0 0 15px 0; color: #333333; font-size: 16px; line-height: 1.6; font-family: Arial, sans-serif;">
+                                Please provide GitHub Copilot licenses for the following students from <strong>${escapeHtml(projectName)}</strong>:
+                            </p>
+                            <table cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 20px 0; border: 1px solid #e0e0e0; border-collapse: collapse;">
+                                <tr style="background-color: #f8f9fa;">
+                                    <th style="padding: 10px; text-align: left; border-bottom: 2px solid #e0e0e0; border-right: 1px solid #e0e0e0; font-family: Arial, sans-serif;">Student</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 2px solid #e0e0e0; border-right: 1px solid #e0e0e0; font-family: Arial, sans-serif;">EPAM Email</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 2px solid #e0e0e0; border-right: 1px solid #e0e0e0; font-family: Arial, sans-serif;">Effective from</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 2px solid #e0e0e0; font-family: Arial, sans-serif;">Effective to</th>
+                                </tr>
+                                ${studentsList}
+                            </table>
+                            <p style="margin: 20px 0 0 0; color: #333333; font-size: 16px; line-height: 1.6; font-family: Arial, sans-serif;">
+                                Thank you!
+                            </p>
+                        </td>
+                    </tr>
+                    <!-- Footer -->
+                    <tr>
+                        <td style="padding: 20px 40px; background: linear-gradient(to bottom, #f0f4ff 0%, #eef2ff 100%); background-color: #f0f4ff; border-top: 2px solid #c7d2fe;">
+                            <p style="margin: 0; color: #6366f1; font-size: 12px; font-weight: 600; text-align: center; font-family: Arial, sans-serif;">
+                                X-Stack Project Education Course
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>`;
+        }
+        
+        function copyCopilotHTML() {
+            const htmlCode = document.getElementById('htmlCode').value;
+            if (!htmlCode) {
+                showCopilotAlert('Please generate the letter first', 'error');
+                return;
+            }
+            navigator.clipboard.writeText(htmlCode).then(() => {
+                showCopilotAlert('✅ HTML code copied to clipboard!', 'success');
+            }).catch(err => {
+                showCopilotAlert('❌ Copy error: ' + err, 'error');
+            });
+        }
+        
+        function downloadCopilotHTML() {
+            const htmlCode = document.getElementById('htmlCode').value;
+            if (!htmlCode) {
+                showCopilotAlert('Please generate the letter first', 'error');
+                return;
+            }
+            const blob = new Blob([htmlCode], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const projectName = document.getElementById('projectName').value || 'copilot';
+            a.download = `GitHub_Copilot_${projectName.replace(/[^a-z0-9]/gi, '_')}.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showCopilotAlert('✅ File downloaded!', 'success');
+        }
+        
+        function showCopilotAlert(message, type) {
+            const alerts = document.getElementById('copilotAlerts');
+            if (!alerts) return;
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            alerts.innerHTML = '';
+            alerts.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+        
+        // Function to calculate Effective to date (+3 months from Effective from)
+        function calculateEffectiveTo(fromDate) {
+            if (!fromDate) return null;
+            const date = new Date(fromDate + 'T12:00:00');
+            if (isNaN(date.getTime())) return null;
+            
+            // Add 3 months
+            const newDate = new Date(date);
+            newDate.setMonth(newDate.getMonth() + 3);
+            
+            const year = newDate.getFullYear();
+            const month = String(newDate.getMonth() + 1).padStart(2, '0');
+            const day = String(newDate.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        
+        // Set default dates for Copilot - wait for DOM to be ready
+        document.addEventListener('DOMContentLoaded', function() {
+            const todayCopilot = new Date();
+            const todayYear = todayCopilot.getFullYear();
+            const todayMonth = String(todayCopilot.getMonth() + 1).padStart(2, '0');
+            const todayDay = String(todayCopilot.getDate()).padStart(2, '0');
+            const todayFormatted = `${todayYear}-${todayMonth}-${todayDay}`;
+            
+            const effectiveFromInput = document.getElementById('effectiveFrom');
+            const effectiveToInput = document.getElementById('effectiveTo');
+            
+            if (effectiveFromInput) {
+                effectiveFromInput.value = todayFormatted;
+                // Calculate and set Effective to (+3 months)
+                const calculatedToDate = calculateEffectiveTo(todayFormatted);
+                if (calculatedToDate && effectiveToInput) {
+                    effectiveToInput.value = calculatedToDate;
+                }
+            }
+        });
+        
+        // Also set immediately if DOM is already loaded
+        const todayCopilot = new Date();
+        const todayYear = todayCopilot.getFullYear();
+        const todayMonth = String(todayCopilot.getMonth() + 1).padStart(2, '0');
+        const todayDay = String(todayCopilot.getDate()).padStart(2, '0');
+        const todayFormatted = `${todayYear}-${todayMonth}-${todayDay}`;
+        
+        const effectiveFromInput = document.getElementById('effectiveFrom');
+        const effectiveToInput = document.getElementById('effectiveTo');
+        
+        if (effectiveFromInput) {
+            effectiveFromInput.value = todayFormatted;
+            // Calculate and set Effective to (+3 months)
+            const calculatedToDate = calculateEffectiveTo(todayFormatted);
+            if (calculatedToDate && effectiveToInput) {
+                effectiveToInput.value = calculatedToDate;
+            }
+        }
+        
+        // Track if user manually changed Effective to
+        let effectiveToManuallyChanged = false;
+        
+        // Update Effective to when Effective from changes (only if user hasn't manually changed it)
+        if (effectiveFromInput) {
+            effectiveFromInput.addEventListener('change', () => {
+                if (!effectiveToManuallyChanged) {
+                    const fromDate = effectiveFromInput.value;
+                    const calculatedToDate = calculateEffectiveTo(fromDate);
+                    if (calculatedToDate && effectiveToInput) {
+                        effectiveToInput.value = calculatedToDate;
+                    }
+                }
+                
+                // Update preview if data exists
+                if (copilotData && copilotData.length > 0) {
+                    updateCopilotDataPreview();
+                    generateCopilotLetter();
+                }
+            });
+        }
+        
+        // Track manual changes to Effective to
+        if (effectiveToInput) {
+            effectiveToInput.addEventListener('change', () => {
+                effectiveToManuallyChanged = true;
+                
+                // Update preview if data exists
+                if (copilotData && copilotData.length > 0) {
+                    updateCopilotDataPreview();
+                    generateCopilotLetter();
+                }
+            });
+        }
+        
+        // Initial Email functions
+        function formatDateForEmail(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            const day = date.getDate();
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'];
+            const month = monthNames[date.getMonth()];
+            return `${month} ${day}`;
+        }
+        
+        function generateInitialLetter() {
+            const startDate = document.getElementById('startDateInitial').value;
+            const deadlineDate = document.getElementById('deadlineDate').value;
+            
+            if (!startDate || !deadlineDate) {
+                document.getElementById('initialPreview').innerHTML = '<div class="loading">Enter dates to generate the letter</div>';
+                return;
+            }
+            
+            // Generate HTML
+            const html = generateInitialHTML(startDate, deadlineDate);
+            
+            // Update preview
+            const preview = document.getElementById('initialPreview');
+            const iframe = document.createElement('iframe');
+            iframe.style.width = '100%';
+            iframe.style.height = '800px';
+            iframe.style.border = 'none';
+            preview.innerHTML = '';
+            preview.appendChild(iframe);
+            iframe.srcdoc = html;
+            
+            // Store HTML
+            document.getElementById('htmlCode').value = html;
+        }
+        
+        function generateInitialHTML(startDateStr, deadlineDateStr) {
+            const startDateFormatted = formatDateForEmail(startDateStr);
+            const deadlineDateFormatted = formatDateForEmail(deadlineDateStr);
+            
+            return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Initial Email - Project Education Start</title>
+    <!--[if mso]>
+    <style type="text/css">
+        body, table, td {font-family: Arial, sans-serif !important;}
+    </style>
+    <![endif]-->
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; background-color: #f5f5f5;">
+    <!-- Main Container -->
+    <table cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f5f5f5; padding: 20px 0;">
+        <tr>
+            <td align="center">
+                <!-- Email Content Container -->
+                <table cellspacing="0" cellpadding="0" border="0" width="600" style="background-color: #ffffff; border: 1px solid #e0e0e0;">
+                    <!-- Header -->
+                    <tr>
+                        <td style="background-color: #6366f1; padding: 30px 40px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%); background-color: #6366f1;">
+                            <table cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <tr>
+                                    <td>
+                                        <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: bold; font-family: Arial, sans-serif; text-shadow: 0 1px 2px rgba(0,0,0,0.1);">
+                                            X-Stack Project Education Course
+                                        </h1>
+                                        <p style="margin: 8px 0 0 0; color: #f3f4f6; font-size: 16px; font-family: Arial, sans-serif;">
+                                            Initial Email - Project Education Start
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                    <!-- Greeting -->
+                    <tr>
+                        <td style="padding: 30px 40px 20px 40px;">
+                            <p style="margin: 0; color: #333333; font-size: 16px; line-height: 1.6; font-family: Arial, sans-serif;">
+                                Dear Team,
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 0 40px 20px 40px;">
+                            <p style="margin: 0 0 15px 0; color: #333333; font-size: 16px; line-height: 1.6; font-family: Arial, sans-serif;">
+                                As you know, by default, xStack Project based Education (PE) starts on the second Monday of every month.
+                            </p>
+                            <p style="margin: 0 0 15px 0; color: #333333; font-size: 16px; line-height: 1.6; font-family: Arial, sans-serif;">
+                                The new run of PE is scheduled for <strong>${startDateFormatted}</strong>.
+                            </p>
+                            <p style="margin: 0 0 15px 0; color: #333333; font-size: 16px; line-height: 1.6; font-family: Arial, sans-serif;">
+                                Colleagues, please let me know if you have any candidates for ${formatDateForEmail(startDateStr).split(' ')[0]} run from Campus WCA, CEE, Latam and UA.
+                            </p>
+                            <p style="margin: 0; color: #333333; font-size: 16px; line-height: 1.6; font-family: Arial, sans-serif;">
+                                We expect to get the final list of candidates on <strong>${deadlineDateFormatted}</strong>.
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="padding: 20px 40px; background: linear-gradient(to bottom, #f0f4ff 0%, #eef2ff 100%); background-color: #f0f4ff; border-top: 2px solid #c7d2fe;">
+                            <p style="margin: 0; color: #6366f1; font-size: 12px; font-weight: 600; text-align: center; font-family: Arial, sans-serif;">
+                                X-Stack Project Education Course
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>`;
+        }
+        
+        function copyInitialHTML() {
+            const htmlCode = document.getElementById('htmlCode').value;
+            if (!htmlCode) {
+                showInitialAlert('Please generate the letter first', 'error');
+                return;
+            }
+            navigator.clipboard.writeText(htmlCode).then(() => {
+                showInitialAlert('✅ HTML code copied to clipboard!', 'success');
+            }).catch(err => {
+                showInitialAlert('❌ Copy error: ' + err, 'error');
+            });
+        }
+        
+        function downloadInitialHTML() {
+            const htmlCode = document.getElementById('htmlCode').value;
+            if (!htmlCode) {
+                showInitialAlert('Please generate the letter first', 'error');
+                return;
+            }
+            const blob = new Blob([htmlCode], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const startDate = document.getElementById('startDateInitial').value || 'initial';
+            a.download = `Initial_Email_${startDate}.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showInitialAlert('✅ File downloaded!', 'success');
+        }
+        
+        function showInitialAlert(message, type) {
+            const alerts = document.getElementById('initialAlerts');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            alerts.innerHTML = '';
+            alerts.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+        
+        // Auto-update on initial form changes
+        document.getElementById('initialForm').addEventListener('input', generateInitialLetter);
+        document.getElementById('initialForm').addEventListener('change', generateInitialLetter);
+        
+        // Set default dates for initial email
+        const todayInitial = new Date();
+        const nextMonth = new Date(todayInitial.getFullYear(), todayInitial.getMonth() + 1, 1);
+        // Find second Monday of next month
+        let secondMonday = new Date(nextMonth);
+        let mondayCount = 0;
+        while (mondayCount < 2) {
+            if (secondMonday.getDay() === 1) {
+                mondayCount++;
+                if (mondayCount === 2) break;
+            }
+            secondMonday.setDate(secondMonday.getDate() + 1);
+        }
+        document.getElementById('startDateInitial').valueAsDate = secondMonday;
+        
+        // Deadline is 7 days before start
+        const deadline = new Date(secondMonday);
+        deadline.setDate(deadline.getDate() - 7);
+        document.getElementById('deadlineDate').valueAsDate = deadline;
+        
+        // Generate initial letter on load
+        generateInitialLetter();
+    </script>
+</body>
+</html>
+
+

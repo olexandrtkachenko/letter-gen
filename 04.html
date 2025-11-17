@@ -1,0 +1,1926 @@
+<!DOCTYPE html>
+    <html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>04. Status Update - X-Stack Letter Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .back-link {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 6px;
+            transition: background 0.3s;
+        }
+        
+        .back-link:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+        
+        @media (max-width: 1200px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .form-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .form-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        input[type="text"],
+        input[type="date"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .paste-area {
+            background: white;
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .paste-area:hover {
+            background: #f0f4ff;
+            border-color: #5568d3;
+        }
+        
+        .paste-area.has-data {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+        
+        .paste-area p {
+            color: #666;
+            margin: 10px 0;
+        }
+        
+        .paste-area strong {
+            color: #667eea;
+        }
+        
+        .data-preview {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 6px;
+            border: 2px solid #10b981;
+            max-height: 400px;
+            overflow-y: auto;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        #dataPreview {
+            margin-top: 15px;
+        }
+        
+        #dataPreview h3 {
+            color: #10b981;
+            font-size: 18px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .data-preview table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        
+        .data-preview th,
+        .data-preview td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .data-preview th {
+            background: #f8f9fa;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        
+        .stats-preview {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 6px;
+            border: 2px solid #667eea;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        #statsPreview {
+            margin-top: 15px;
+        }
+        
+        .stats-preview h3 {
+            color: #667eea;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        
+        .stats-preview ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .stats-preview li {
+            padding: 5px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .stats-preview li:last-child {
+            border-bottom: none;
+        }
+        
+        .preview-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .preview-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .preview-container {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 20px;
+            max-height: 800px;
+            overflow-y: auto;
+        }
+        
+        .actions {
+            padding: 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="index.html" class="back-link">← Back</a>
+            <h1>📊 04. Status Update</h1>
+            <p>Status update generator with student information</p>
+        </div>
+        
+        <div class="content">
+            <!-- Form Section -->
+            <div class="form-section">
+                <h2>📝 Enter Data</h2>
+                
+                <div id="alerts"></div>
+                
+                <form id="letterForm">
+                    <!-- Basic Info -->
+                    <div class="form-group">
+                        <label for="runNumber">Run Number:</label>
+                        <input type="text" id="runNumber" value="15" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="coordinator">Run Coordinator:</label>
+                        <input type="text" id="coordinator" placeholder="[Coordinator Name]" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="sprintNumber">Sprint Number:</label>
+                        <input type="text" id="sprintNumber" placeholder="e.g., 4" required>
+                    </div>
+                    
+                    <!-- Excel Table Paste -->
+                    <div class="form-group">
+                        <label>Paste table from Excel (Ctrl+V or Cmd+V):</label>
+                        <div class="paste-area" id="pasteArea" tabindex="0" contenteditable="true" style="min-height: 150px;">
+                            <p><strong>Click here and paste the table</strong></p>
+                            <p style="font-size: 12px; color: #999;">Expected columns: Student, Status, Reason, Location, Team</p>
+                    </div>
+                        <div id="dataPreview" class="hidden"></div>
+                        <div id="statsPreview" class="hidden"></div>
+                    </div>
+                    
+                    <!-- Timeline dates -->
+                    <div class="form-group">
+                        <label for="timelineStartDate">Timeline Start Date:</label>
+                        <input type="date" id="timelineStartDate" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="timelineEndDate">Timeline End Date:</label>
+                        <input type="date" id="timelineEndDate">
+                    </div>
+                    
+                    <!-- Other information -->
+                    <div class="form-group">
+                        <label for="highlightText">Other information:</label>
+                        <input type="text" id="highlightText" placeholder="The students from Latin America (Mexico) and significant time differences.">
+                    </div>
+                    
+                    <!-- Team Demo Links -->
+                    <div class="form-group" id="teamsSection" style="display: none;">
+                        <label>Team Demo Links:</label>
+                        <div id="teamsContainer"></div>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Preview Section -->
+            <div class="preview-section">
+                <h2>👁️ Preview</h2>
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <button class="btn btn-primary" id="generateBtn" onclick="generateLetter()">🔄 Update Preview</button>
+                    <button class="btn btn-success" id="copyBtn" onclick="copyHTML()">📋 Copy HTML</button>
+                    <button class="btn btn-secondary" id="downloadBtn" onclick="downloadHTML()">💾 Download HTML</button>
+                    <button class="btn" style="background: #f59e0b; color: white; border: none;" onclick="window.open('09.html', '_blank')">📖 Instructions</button>
+                </div>
+                <div class="preview-container" id="preview">
+                    <div class="loading">Paste data from Excel to generate the letter</div>
+            </div>
+        </div>
+        </div>
+        
+        <div id="htmlOutput" class="hidden">
+            <textarea id="htmlCode" readonly></textarea>
+        </div>
+        
+        <div style="text-align: center; padding: 20px; background: #f8f9fa; border-top: 1px solid #e0e0e0; color: #666; font-size: 12px;">
+            <p style="margin: 0;">Developer: <a href="mailto:Oleksandr_Tkachenko3@epam.com" style="color: #667eea; text-decoration: none;">Oleksandr Tkachenko</a></p>
+        </div>
+    </div>
+    
+    <script>
+        let isParsing = false; // Track if we're currently parsing to avoid double parsing
+        let parsedData = [];
+        let stats = {
+            totalStudents: 0,
+            regions: {},
+            skills: {}
+        };
+        let lastParsedDataLength = 0; // Track last successful parse
+        
+        // Set default dates - today's date
+        const today = new Date();
+        const todayYear = today.getFullYear();
+        const todayMonth = String(today.getMonth() + 1).padStart(2, '0');
+        const todayDay = String(today.getDate()).padStart(2, '0');
+        const todayFormatted = `${todayYear}-${todayMonth}-${todayDay}`;
+        
+        document.getElementById('timelineStartDate').value = todayFormatted;
+        
+        // Set end date to 15 weeks from today
+        const endDate = new Date(today);
+        endDate.setDate(endDate.getDate() + (15 * 7) - 1); // 15 weeks
+        const endYear = endDate.getFullYear();
+        const endMonth = String(endDate.getMonth() + 1).padStart(2, '0');
+        const endDay = String(endDate.getDate()).padStart(2, '0');
+        const endFormatted = `${endYear}-${endMonth}-${endDay}`;
+        document.getElementById('timelineEndDate').value = endFormatted;
+        
+        // Calculate sprint number function
+        function calculateSprintNumber() {
+            const timelineStartDate = document.getElementById('timelineStartDate').value;
+            const timelineEndDate = document.getElementById('timelineEndDate').value;
+            
+            if (!timelineStartDate || !timelineEndDate) {
+                return;
+            }
+            
+            const startDate = new Date(timelineStartDate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            // Calculate which week we're in (0-indexed, starting from week 1)
+            const daysDiff = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+            const currentWeek = Math.floor(daysDiff / 7) + 1; // Week 1, 2, 3, etc.
+            
+            console.log('calculateSprintNumber - currentWeek:', currentWeek);
+            
+            // Map weeks to sprint numbers:
+            // Weeks 1-3: Deep Dive (no sprint)
+            // Week 4: Sprint-0
+            // Weeks 5-6: Sprint-1
+            // Weeks 7-8: Sprint-2
+            // Weeks 9-10: Sprint-3
+            // Weeks 11-12: Sprint-4
+            // Weeks 13-14: Sprint-5
+            // Week 15: Final
+            
+            let sprintNumber = '';
+            
+            if (currentWeek < 4) {
+                // Before Sprint-0
+                sprintNumber = '0';
+            } else if (currentWeek === 4) {
+                sprintNumber = '0';
+            } else if (currentWeek >= 5 && currentWeek <= 6) {
+                sprintNumber = '1';
+            } else if (currentWeek >= 7 && currentWeek <= 8) {
+                sprintNumber = '2';
+            } else if (currentWeek >= 9 && currentWeek <= 10) {
+                sprintNumber = '3';
+            } else if (currentWeek >= 11 && currentWeek <= 12) {
+                sprintNumber = '4';
+            } else if (currentWeek >= 13 && currentWeek <= 14) {
+                sprintNumber = '5';
+            } else if (currentWeek >= 15) {
+                // After Sprint-5, show Sprint-5 (last sprint)
+                sprintNumber = '5';
+            }
+            
+            // Always update the field (user can still edit it manually)
+            const sprintInput = document.getElementById('sprintNumber');
+            if (sprintInput && sprintNumber !== '') {
+                sprintInput.value = sprintNumber;
+            }
+            
+            console.log('calculateSprintNumber - calculated sprint:', sprintNumber);
+            return sprintNumber;
+        }
+        
+        // Calculate sprint number on page load
+        calculateSprintNumber();
+        
+        // Recalculate sprint number when timeline dates change
+        document.getElementById('timelineStartDate').addEventListener('change', () => {
+            calculateSprintNumber();
+        });
+        document.getElementById('timelineEndDate').addEventListener('change', () => {
+            calculateSprintNumber();
+        });
+        
+        // Paste area handling
+        const pasteArea = document.getElementById('pasteArea');
+        
+        pasteArea.addEventListener('click', () => {
+            pasteArea.focus();
+        });
+        
+        pasteArea.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+            console.log('Paste event - pasted text length:', pastedText.length);
+            console.log('Paste event - first 200 chars:', pastedText.substring(0, 200));
+            
+            // Check if pasted text is placeholder or status message
+            const placeholderTexts = ['Data pasted', 'processing', 'Click here', 'Expected columns', 'Successfully loaded'];
+            const isPlaceholder = placeholderTexts.some(placeholder => pastedText.toLowerCase().includes(placeholder.toLowerCase()));
+            
+            if (isPlaceholder || pastedText.trim().length < 50) {
+                console.log('Paste event: Ignoring placeholder or too short text');
+                showAlert('⚠️ Please paste actual Excel data, not status messages', 'warning');
+                // Restore placeholder
+                pasteArea.innerHTML = `
+                    <p><strong>Click here and paste the table</strong></p>
+                    <p style="font-size: 12px; color: #999;">Expected columns: Student, Region, Location, Project Role</p>
+                `;
+                return;
+            }
+            
+            // Prevent double parsing - if already parsing, skip this paste event
+            if (isParsing) {
+                console.log('Paste event: Already parsing, skipping this paste event');
+                return;
+            }
+            
+            // Set flag and process
+                                isParsing = true;
+            
+            // Clear paste area and show that data was pasted
+            pasteArea.innerHTML = '<p style="color: #10b981;"><strong>✅ Data pasted, processing...</strong></p>';
+            
+            // Call parseExcelData - it will handle the parsing
+            parseExcelData(pastedText);
+        });
+        
+        pasteArea.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
+                // Paste event will handle it, so we don't need to do anything here
+                // The paste event handler will call parseExcelData
+                // This is just a fallback in case paste event doesn't fire
+                if (!isParsing) {
+                    setTimeout(() => {
+                        // Only parse if paste event didn't handle it and we're not already parsing
+                        if (!isParsing) {
+                            const text = pasteArea.textContent || pasteArea.innerText;
+                            // Filter out placeholder text and success messages
+                            const placeholderTexts = ['Click here and paste the table', 'Expected columns:', 'Click here and paste', 'Data pasted', 'Successfully loaded', 'processing'];
+                            const isPlaceholder = placeholderTexts.some(placeholder => text.toLowerCase().includes(placeholder.toLowerCase()));
+                            if (text && text.trim().length > 50 && !isPlaceholder) {
+                                console.log('keydown handler: Processing paste via keydown fallback');
+                                isParsing = true;
+                                pasteArea.innerHTML = '<p style="color: #10b981;"><strong>✅ Data pasted, processing...</strong></p>';
+                                parseExcelData(text);
+                            }
+                        }
+                    }, 200);
+                }
+            }
+        });
+        
+        function parseExcelData(text) {
+            console.log('parseExcelData: Starting parse, text length:', text.length);
+            console.log('parseExcelData: isParsing flag:', isParsing);
+            
+            // Check if already parsing - this prevents double calls
+            // But only if isParsing was set by a previous call (not by current paste event)
+            if (isParsing && parsedData.length > 0) {
+                console.log('parseExcelData: Already parsing with data, skipping duplicate call');
+                    return;
+                }
+                
+            // Check if text is placeholder or status message
+            const placeholderTexts = ['Data pasted', 'processing', 'Click here', 'Expected columns', 'Successfully loaded'];
+            const isPlaceholder = placeholderTexts.some(placeholder => text.toLowerCase().includes(placeholder.toLowerCase()));
+            
+            if (isPlaceholder || !text || text.trim().length < 50) {
+                console.log('parseExcelData: Text is placeholder or too short, ignoring');
+                isParsing = false;
+                showAlert('⚠️ Please paste actual Excel data. The text appears to be a status message, not data.', 'warning');
+                    // Restore placeholder
+                pasteArea.innerHTML = `
+                    <p><strong>Click here and paste the table</strong></p>
+                    <p style="font-size: 12px; color: #999;">Expected columns: Student, Region, Location, Project Role</p>
+                    `;
+                    return;
+                }
+                
+            // Set parsing flag if not already set
+            if (!isParsing) {
+                isParsing = true;
+            }
+            
+            try {
+                const lines = text.split('\n').filter(line => line.trim());
+                console.log('parseExcelData: Total lines after split:', lines.length);
+                if (lines.length === 0) {
+                    showAlert('Error: No data to process', 'error');
+                    isParsing = false;
+                    // Restore placeholder
+                    pasteArea.innerHTML = `
+                        <p><strong>Click here and paste the table</strong></p>
+                        <p style="font-size: 12px; color: #999;">Expected columns: Student, Region, Location, Project Role</p>
+                    `;
+                    return;
+                }
+                
+                // Parse header
+                const headerLine = lines[0];
+                console.log('parseExcelData: Header line:', headerLine);
+                
+                // Try tab separator first, then try other separators
+                let headers = headerLine.split('\t').map(h => h.trim());
+                if (headers.length === 1) {
+                    // Try comma or semicolon
+                    headers = headerLine.split(/[;,\t]/).map(h => h.trim());
+                }
+                console.log('parseExcelData: Headers found:', headers);
+                
+                // Find column indices
+                const studentIdx = findColumnIndex(headers, ['student', 'name']);
+                const statusIdx = findColumnIndex(headers, ['status']);
+                const reasonIdx = findColumnIndex(headers, ['reason']);
+                const locationIdx = findColumnIndex(headers, ['location']);
+                const teamIdx = findColumnIndex(headers, ['team']);
+                
+                // Check if we have at least student column or first column can be used
+                if (studentIdx === -1) {
+                    // Try to use first column as student name
+                    if (lines.length > 1) {
+                        const firstRow = lines[1].split('\t').map(c => c.trim());
+                        if (firstRow.length > 0 && firstRow[0]) {
+                            // Use first column as student, continue processing
+                        } else {
+                            showAlert('Error: Student column not found and first column is empty', 'error');
+                            isParsing = false;
+                            // Restore placeholder
+                            pasteArea.innerHTML = `
+                                <p><strong>Click here and paste the table</strong></p>
+                                <p style="font-size: 12px; color: #999;">Expected columns: Student, Status, Reason, Location, Team</p>
+                            `;
+                            return;
+                        }
+                    } else {
+                        showAlert('Error: Student column not found', 'error');
+                        isParsing = false;
+                        // Restore placeholder
+                        pasteArea.innerHTML = `
+                            <p><strong>Click here and paste the table</strong></p>
+                            <p style="font-size: 12px; color: #999;">Expected columns: Student, Status, Reason, Location, Team</p>
+                        `;
+                        return;
+                    }
+                }
+                
+                // Parse data rows - parse ALL rows starting from index 1
+                parsedData = [];
+                const actualStudentIdx = studentIdx !== -1 ? studentIdx : 0;
+                
+                console.log('Starting to parse rows. Total lines:', lines.length);
+                console.log('Column indices - student:', actualStudentIdx, 'status:', statusIdx, 'reason:', reasonIdx, 'location:', locationIdx, 'team:', teamIdx);
+                
+                for (let i = 1; i < lines.length; i++) {
+                    // Try tab separator first, then try other separators
+                    let cells = lines[i].split('\t').map(c => c.trim());
+                    if (cells.length === 1) {
+                        // Try comma or semicolon
+                        cells = lines[i].split(/[;,\t]/).map(c => c.trim());
+                    }
+                    
+                    // Parse ALL rows that have at least the student column
+                    if (cells.length > actualStudentIdx) {
+                        const rowData = {
+                            student: cells[actualStudentIdx] || '',
+                            status: statusIdx !== -1 && cells.length > statusIdx ? (cells[statusIdx] || '') : '',
+                            reason: reasonIdx !== -1 && cells.length > reasonIdx ? (cells[reasonIdx] || '') : '',
+                            location: locationIdx !== -1 && cells.length > locationIdx ? (cells[locationIdx] || '') : '',
+                            team: teamIdx !== -1 && cells.length > teamIdx ? (cells[teamIdx] || '') : ''
+                        };
+                        parsedData.push(rowData);
+                    }
+                }
+                
+                console.log('Total lines:', lines.length);
+                console.log('Parsed data count:', parsedData.length);
+                console.log('First 5 rows:', parsedData.slice(0, 5));
+                console.log('Last 5 rows:', parsedData.slice(-5));
+                console.log('parsedData array reference:', parsedData);
+                
+                // Show info if some columns are missing but data is processed
+                if (studentIdx === -1) {
+                    showAlert('ℹ️ Student column not found, using first column. Data processed successfully.', 'info');
+                } else if (statusIdx === -1 || reasonIdx === -1 || locationIdx === -1 || teamIdx === -1) {
+                    const missingCols = [];
+                    if (statusIdx === -1) missingCols.push('Status');
+                    if (reasonIdx === -1) missingCols.push('Reason');
+                    if (locationIdx === -1) missingCols.push('Location');
+                    if (teamIdx === -1) missingCols.push('Team');
+                    showAlert(`ℹ️ Some columns not found (${missingCols.join(', ')}), but data processed successfully.`, 'info');
+                }
+                
+                // Calculate statistics
+                console.log('Before calculateStats, parsedData.length:', parsedData.length);
+                calculateStats();
+                console.log('After calculateStats, stats.totalStudents:', stats.totalStudents);
+                console.log('After calculateStats, stats.dismissedCount:', stats.dismissedCount);
+                console.log('After calculateStats, stats.dismissedReasons:', Object.keys(stats.dismissedReasons || {}).length);
+                
+                // Update UI - ensure parsedData is still valid
+                console.log('Before updateDataPreview, parsedData.length:', parsedData.length);
+                console.log('Before updateDataPreview, parsedData reference:', parsedData);
+                
+                // Update paste area to show success
+                pasteArea.innerHTML = `<p style="color: #10b981;"><strong>✅ Successfully loaded ${parsedData.length} records</strong></p>`;
+                pasteArea.classList.add('has-data');
+                
+                // Update teams inputs
+                updateTeamsInputs();
+                
+                // Update previews immediately - call directly without setTimeout
+                console.log('Calling updateDataPreview directly...');
+                updateDataPreview();
+                console.log('Calling updateStatsPreview directly...');
+                updateStatsPreview();
+                
+                showAlert(`Successfully loaded ${parsedData.length} records`, 'success');
+                
+                // Verify parsedData is still valid before generating
+                console.log('Before generateLetter, parsedData.length:', parsedData.length);
+                lastParsedDataLength = parsedData.length;
+                
+                if (parsedData.length > 0) {
+                    // Store a copy to prevent data loss
+                    const dataCopy = [...parsedData];
+                    console.log('Stored copy of parsedData, length:', dataCopy.length);
+                    
+                    // Auto-generate letter after a small delay to ensure UI is updated
+                    setTimeout(() => {
+                        // Verify data is still there
+                        if (parsedData.length !== lastParsedDataLength) {
+                            console.warn('WARNING: parsedData changed after parse! Restoring from copy...');
+                            parsedData = [...dataCopy];
+                            calculateStats();
+                        }
+                        console.log('Calling generateLetter, parsedData.length:', parsedData.length);
+                        generateLetter();
+                    }, 50);
+                } else {
+                    console.error('ERROR: parsedData is empty before generateLetter!');
+                    isParsing = false;
+                    // Restore placeholder
+                    pasteArea.innerHTML = `
+                        <p><strong>Click here and paste the table</strong></p>
+                        <p style="font-size: 12px; color: #999;">Expected columns: Student, Region, Location, Project Role</p>
+                    `;
+                    showAlert('Error: No data was parsed. Please check your Excel table format.', 'error');
+                }
+                
+                // Reset parsing flag after a delay to allow UI to update
+                setTimeout(() => {
+                    isParsing = false;
+                    console.log('parseExcelData: isParsing reset to false');
+                }, 500);
+            } catch (error) {
+                isParsing = false;
+                showAlert('Data processing error: ' + error.message, 'error');
+                console.error(error);
+            }
+        }
+        
+        function findColumnIndex(headers, possibleNames) {
+            for (let i = 0; i < headers.length; i++) {
+                const header = headers[i].toLowerCase();
+                for (const name of possibleNames) {
+                    if (header.includes(name.toLowerCase())) {
+                        return i;
+                    }
+                }
+            }
+            return -1;
+        }
+        
+        function calculateStats() {
+            if (!parsedData || parsedData.length === 0) {
+                stats = {
+                    totalStudents: 0,
+                    dismissedCount: 0,
+                    dismissedReasons: {},
+                    activeCount: 0
+                };
+                    return;
+                }
+                
+            stats = {
+                totalStudents: parsedData.length,
+                dismissedCount: 0,
+                dismissedReasons: {},
+                activeCount: 0
+            };
+            
+            // Standard dismissal reasons for fuzzy matching
+            const standardReasons = [
+                'Moved to Production Projects',
+                'Left project due to lack of progress',
+                'Left company (accepted outside offer)',
+                'Focused on another education activity'
+            ];
+            
+            parsedData.forEach(row => {
+                const status = row.status ? row.status.trim().toLowerCase() : '';
+                // Check for various spellings of dismissed/dismiss
+                const isDismissed = status === 'dismissed' || 
+                                   status === 'dissmissed' ||  // Common typo with double 's'
+                                   status === 'dismiss' || 
+                                   status === 'dissmiss' ||  // Common typo with double 's'
+                                   status.includes('dismiss') ||
+                                   status.includes('dissmiss') ||  // Common typo with double 's'
+                                   status === 'excluded' ||
+                                   status === 'exclude';
+                
+                console.log('Row status check:', {
+                    student: row.student,
+                    status: row.status,
+                    statusLower: status,
+                    isDismissed: isDismissed
+                });
+                
+                if (isDismissed) {
+                    stats.dismissedCount++;
+                    const reason = (row.reason && row.reason.trim()) ? row.reason.trim() : 'Unknown reason';
+                    
+                    // Try to match with standard reasons using fuzzy matching
+                    let matchedReason = null;
+                    const reasonLower = reason.toLowerCase();
+                    
+                    for (const standardReason of standardReasons) {
+                        const standardLower = standardReason.toLowerCase();
+                        // Exact match
+                        if (reasonLower === standardLower) {
+                            matchedReason = standardReason;
+                            break;
+                        }
+                        // Partial match (check if reason contains key words from standard)
+                        const standardWords = standardLower.split(' ').filter(w => w.length > 3);
+                        const matchCount = standardWords.filter(word => reasonLower.includes(word)).length;
+                        if (matchCount >= standardWords.length * 0.7) {
+                            matchedReason = standardReason;
+                            break;
+                        }
+                    }
+                    
+                    const finalReason = matchedReason || reason;
+                    
+                    if (!stats.dismissedReasons[finalReason]) {
+                        stats.dismissedReasons[finalReason] = 0;
+                    }
+                    stats.dismissedReasons[finalReason]++;
+                } else {
+                    stats.activeCount++;
+                }
+            });
+            
+            console.log('calculateStats - dismissedCount:', stats.dismissedCount);
+            console.log('calculateStats - dismissedReasons:', stats.dismissedReasons);
+            console.log('calculateStats - activeCount:', stats.activeCount);
+        }
+        
+        function updateTeamsInputs() {
+            if (!parsedData || parsedData.length === 0) {
+                const teamsSection = document.getElementById('teamsSection');
+                if (teamsSection) {
+                    teamsSection.style.display = 'none';
+                }
+                return;
+            }
+            
+            // Extract unique teams
+            const teamsSet = new Set();
+            parsedData.forEach(row => {
+                if (row.team && row.team.trim()) {
+                    teamsSet.add(row.team.trim());
+                }
+            });
+            
+            const teams = Array.from(teamsSet).sort();
+            console.log('updateTeamsInputs - teams found:', teams);
+            
+            const teamsSection = document.getElementById('teamsSection');
+            if (!teamsSection) {
+                console.error('updateTeamsInputs: teamsSection element not found!');
+                return;
+            }
+            
+            if (teams.length === 0) {
+                teamsSection.style.display = 'none';
+                return;
+            }
+            
+            // Show section
+            teamsSection.style.display = 'block';
+            
+            // Generate inputs for each team
+            const container = document.getElementById('teamsContainer');
+            if (!container) {
+                console.error('updateTeamsInputs: teamsContainer element not found!');
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            teams.forEach(team => {
+                const teamDiv = document.createElement('div');
+                teamDiv.style.marginBottom = '10px';
+                teamDiv.innerHTML = `
+                    <label for="teamLink_${team.replace(/[^a-zA-Z0-9]/g, '_')}" style="display: block; margin-bottom: 5px; font-size: 13px; color: #666;">
+                        ${escapeHtml(team)}:
+                    </label>
+                    <input type="text" 
+                           id="teamLink_${team.replace(/[^a-zA-Z0-9]/g, '_')}" 
+                           class="team-link-input"
+                           placeholder="Enter demo link or leave empty"
+                           style="width: 100%; padding: 8px; border: 2px solid #e0e0e0; border-radius: 4px; font-size: 13px;">
+                `;
+                container.appendChild(teamDiv);
+            });
+        }
+        
+        function extractSkill(role) {
+            const roleLower = role.toLowerCase();
+            
+            // IMPORTANT: Check for Automation Testing/QA FIRST, before checking for other skills
+            // This includes AT Java, AT .Net, AT JS - all should be counted as AQA
+            if (roleLower.includes('automation') || 
+                roleLower.includes('at js') || 
+                roleLower.includes('at-js') ||
+                roleLower.includes('at_js') ||
+                roleLower.includes('at java') ||
+                roleLower.includes('at-java') ||
+                roleLower.includes('at_java') ||
+                roleLower.includes('at .net') ||
+                roleLower.includes('at-.net') ||
+                roleLower.includes('at_.net') ||
+                roleLower.includes('at c#') ||
+                roleLower.includes('at-c#') ||
+                roleLower.includes('at_c#') ||
+                (roleLower.includes('at') && (roleLower.includes('test') || roleLower.includes('qa'))) ||
+                roleLower.includes('aqa') ||
+                (roleLower.includes('qa') && (roleLower.includes('js') || roleLower.includes('javascript'))) ||
+                (roleLower.includes('test') && (roleLower.includes('automation') || roleLower.includes('js') || roleLower.includes('javascript')))) {
+                return 'AQA';
+            }
+            
+            // Map common role patterns to skills
+            if (roleLower.includes('java') && !roleLower.includes('javascript')) {
+                return 'Java';
+            } else if (roleLower.includes('.net') || roleLower.includes('c#')) {
+                return '.NET';
+            } else if (roleLower.includes('python')) {
+                return 'Python';
+            } else if (roleLower.includes('javascript') || roleLower.includes('js') || roleLower.includes('node')) {
+                return 'JavaScript';
+            } else if (roleLower.includes('react') || roleLower.includes('frontend')) {
+                return 'JavaScript';
+            } else if (roleLower.includes('angular')) {
+                return 'JavaScript';
+            } else if (roleLower.includes('vue')) {
+                return 'JavaScript';
+            } else {
+                // Try to extract skill from role name
+                return role || 'Other';
+            }
+        }
+        
+        function updateDataPreview() {
+            const preview = document.getElementById('dataPreview');
+            if (!preview) {
+                console.error('updateDataPreview: dataPreview element not found!');
+                return;
+            }
+            
+            console.log('updateDataPreview called, parsedData.length:', parsedData ? parsedData.length : 'parsedData is null/undefined');
+            console.log('updateDataPreview: parsedData type:', typeof parsedData);
+            console.log('updateDataPreview: parsedData is array?', Array.isArray(parsedData));
+            
+            if (!parsedData || !Array.isArray(parsedData) || parsedData.length === 0) {
+                console.log('updateDataPreview: parsedData is empty, hiding preview');
+                preview.classList.add('hidden');
+                preview.innerHTML = '';
+                return;
+            }
+            
+            console.log('updateDataPreview: Showing preview with', parsedData.length, 'rows');
+            console.log('updateDataPreview: First row:', parsedData[0]);
+            
+            let html = '<h3 style="margin-bottom: 15px; color: #10b981; font-size: 18px; font-weight: 600;">📊 Data Preview (' + parsedData.length + ' records):</h3>';
+            html += '<div class="data-preview"><table>';
+            html += '<thead><tr><th>Student</th><th>Status</th><th>Reason</th><th>Location</th><th>Team</th></tr></thead>';
+            html += '<tbody>';
+            
+            const rowsToShow = parsedData.slice(0, 10);
+            console.log('updateDataPreview: Rows to show:', rowsToShow.length);
+            
+            rowsToShow.forEach((row, index) => {
+                console.log(`updateDataPreview: Row ${index}:`, row);
+                const status = row.status ? row.status.trim().toLowerCase() : '';
+                const isDismissed = status === 'dismissed' || 
+                                   status === 'dismiss' || 
+                                   status.includes('dismiss') ||
+                                   status === 'excluded' ||
+                                   status === 'exclude';
+                const statusColor = isDismissed ? '#ef4444' : '#10b981';
+                html += `<tr>
+                    <td>${escapeHtml(row.student || '')}</td>
+                    <td style="color: ${statusColor}; font-weight: bold;">${escapeHtml(row.status || '')}</td>
+                    <td>${escapeHtml(row.reason || '')}</td>
+                    <td>${escapeHtml(row.location || '')}</td>
+                    <td>${escapeHtml(row.team || '')}</td>
+                </tr>`;
+            });
+            
+            if (parsedData.length > 10) {
+                html += `<tr><td colspan="5" style="text-align: center; color: #999;">... and ${parsedData.length - 10} more records</td></tr>`;
+            }
+            
+            html += '</tbody></table></div>';
+            
+            try {
+            preview.innerHTML = html;
+            preview.classList.remove('hidden');
+                preview.style.display = 'block'; // Force display
+                console.log('updateDataPreview: Preview updated successfully');
+                console.log('updateDataPreview: Element classes:', preview.className);
+                console.log('updateDataPreview: Element visible:', !preview.classList.contains('hidden'));
+                console.log('updateDataPreview: Element display style:', window.getComputedStyle(preview).display);
+            } catch (error) {
+                console.error('updateDataPreview: Error updating preview:', error);
+            }
+        }
+        
+        function updateStatsPreview() {
+            const preview = document.getElementById('statsPreview');
+            if (!preview) {
+                console.error('updateStatsPreview: statsPreview element not found!');
+                return;
+            }
+            
+            console.log('updateStatsPreview called, stats:', stats);
+            
+            if (!stats || !stats.totalStudents || stats.totalStudents === 0) {
+                console.log('updateStatsPreview: No stats to show, hiding preview');
+                preview.classList.add('hidden');
+                preview.innerHTML = '';
+                return;
+            }
+            
+            let html = '<div class="stats-preview">';
+            html += `<h3>Statistics:</h3>`;
+            html += `<p><strong>Total students:</strong> ${stats.totalStudents || 0}</p>`;
+            html += `<p><strong>Active students:</strong> <span style="color: #10b981; font-weight: bold;">${stats.activeCount || 0}</span></p>`;
+            html += `<p><strong>Dismissed students:</strong> <span style="color: #ef4444; font-weight: bold;">${stats.dismissedCount || 0}</span></p>`;
+            
+            if (stats.dismissedReasons && Object.keys(stats.dismissedReasons).length > 0) {
+                html += '<h3 style="margin-top: 15px;">Dismissed by Reason:</h3><ul>';
+                const sortedReasons = Object.keys(stats.dismissedReasons)
+                    .map(reason => ({ name: reason, count: stats.dismissedReasons[reason] }))
+                    .sort((a, b) => b.count - a.count);
+                
+                sortedReasons.forEach(reason => {
+                    html += `<li><strong>${escapeHtml(reason.name)}:</strong> ${reason.count}</li>`;
+                });
+                html += '</ul>';
+            }
+            html += '</div>';
+            
+            try {
+                preview.innerHTML = html;
+                preview.classList.remove('hidden');
+                preview.style.display = 'block'; // Force display
+                console.log('updateStatsPreview: Stats preview updated successfully');
+            } catch (error) {
+                console.error('updateStatsPreview: Error updating preview:', error);
+            }
+        }
+        
+        function showAlert(message, type) {
+            const alerts = document.getElementById('alerts');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            alerts.innerHTML = '';
+            alerts.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            const day = date.getDate();
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'];
+            const month = monthNames[date.getMonth()];
+            const suffix = getDaySuffix(day);
+            return `${day}${suffix} ${month}`;
+        }
+        
+        function getDaySuffix(day) {
+            if (day > 3 && day < 21) return 'th';
+            switch (day % 10) {
+                case 1: return 'st';
+                case 2: return 'nd';
+                case 3: return 'rd';
+                default: return 'th';
+            }
+        }
+        
+        function generateLetter() {
+            console.log('=== generateLetter START ===');
+            console.log('generateLetter called, parsedData.length:', parsedData ? parsedData.length : 'parsedData is null');
+            console.log('generateLetter called, stats.totalStudents:', stats ? stats.totalStudents : 'stats is null');
+            console.log('generateLetter called, lastParsedDataLength:', lastParsedDataLength);
+            
+            if (!parsedData || parsedData.length === 0) {
+                console.error('ERROR in generateLetter: parsedData is empty!');
+                if (lastParsedDataLength > 0) {
+                    console.warn('WARNING: Data was lost! Expected', lastParsedDataLength, 'but got', parsedData ? parsedData.length : 0);
+                }
+                document.getElementById('preview').innerHTML = '<div class="loading">Paste data from Excel to generate the letter</div>';
+                return;
+            }
+            
+            // Recalculate stats if needed (in case data was updated)
+            if (!stats || stats.totalStudents !== parsedData.length) {
+                console.log('Recalculating stats... parsedData.length:', parsedData.length);
+                calculateStats();
+                console.log('After recalculate, stats.totalStudents:', stats.totalStudents);
+            }
+            
+            const runNumber = document.getElementById('runNumber').value;
+            const coordinator = document.getElementById('coordinator').value || '[Coordinator Name]';
+            const sprintNumber = document.getElementById('sprintNumber').value || '';
+            const highlightText = document.getElementById('highlightText').value || '';
+            const timelineStartDate = document.getElementById('timelineStartDate').value;
+            const timelineEndDate = document.getElementById('timelineEndDate').value;
+            
+            if (!runNumber || !timelineStartDate || !coordinator || !sprintNumber) {
+                showAlert('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            console.log('Generating email with stats.totalStudents:', stats.totalStudents);
+            console.log('Generating email with parsedData.length:', parsedData.length);
+            
+            // Use timelineStartDate for startDate in the letter
+            const startDate = formatDate(timelineStartDate);
+            // Generate HTML using the template structure
+            const html = generateEmailHTML(runNumber, startDate, coordinator, sprintNumber, highlightText, timelineStartDate, timelineEndDate);
+            
+            // Update preview
+            const preview = document.getElementById('preview');
+            const iframe = document.createElement('iframe');
+            iframe.style.width = '100%';
+            iframe.style.height = '800px';
+            iframe.style.border = 'none';
+            preview.innerHTML = '';
+            preview.appendChild(iframe);
+            iframe.srcdoc = html;
+            
+            // Store HTML
+            document.getElementById('htmlCode').value = html;
+        }
+        
+        function generateEmailHTML(runNumber, startDate, coordinator, sprintNumber, highlightText, timelineStartDate, timelineEndDate) {
+            // Ensure stats are up to date
+            if (!stats || stats.totalStudents !== parsedData.length) {
+                console.log('Recalculating stats in generateEmailHTML...');
+                calculateStats();
+            }
+            
+            console.log('generateEmailHTML - stats.totalStudents:', stats.totalStudents);
+            console.log('generateEmailHTML - parsedData.length:', parsedData.length);
+            
+            // Sort dismissed reasons by count
+            const sortedDismissedReasons = Object.keys(stats.dismissedReasons || {})
+                .map(reason => ({ name: reason, count: stats.dismissedReasons[reason] }))
+                .sort((a, b) => b.count - a.count);
+            
+            // Get list of dismissed students with their reasons
+            const dismissedStudentsList = parsedData
+                .filter(row => {
+                const status = row.status ? row.status.trim().toLowerCase() : '';
+                return status === 'dismissed' || 
+                           status === 'dissmissed' ||
+                       status === 'dismiss' || 
+                           status === 'dissmiss' ||
+                       status.includes('dismiss') ||
+                           status.includes('dissmiss') ||
+                       status === 'excluded' ||
+                       status === 'exclude';
+                })
+                .map(row => ({
+                    student: row.student || 'Unknown',
+                    reason: row.reason || 'Unknown reason',
+                    status: row.status || ''
+                }));
+            
+            // Get teams with their demo links
+            const teamsSet = new Set();
+            parsedData.forEach(row => {
+                if (row.team && row.team.trim()) {
+                    teamsSet.add(row.team.trim());
+                }
+            });
+            const teams = Array.from(teamsSet).sort();
+            
+            const teamsWithLinks = teams.map(team => {
+                const teamId = team.replace(/[^a-zA-Z0-9]/g, '_');
+                const linkInput = document.getElementById(`teamLink_${teamId}`);
+                const link = linkInput ? linkInput.value.trim() : '';
+                return {
+                    name: team,
+                    link: link
+                };
+            });
+            
+            console.log('generateEmailHTML - final totalStudents:', stats.totalStudents);
+            console.log('generateEmailHTML - dismissedCount:', stats.dismissedCount);
+            console.log('generateEmailHTML - dismissedReasons:', sortedDismissedReasons);
+            console.log('generateEmailHTML - dismissedStudentsList:', dismissedStudentsList.length);
+            console.log('generateEmailHTML - activeCount:', stats.activeCount);
+            console.log('generateEmailHTML - teamsWithLinks:', teamsWithLinks);
+            
+            // Read the template - we'll need to load it
+            // For now, I'll create the HTML structure based on the template
+            return generateFullTemplateHTML(runNumber, startDate, coordinator, sprintNumber, stats.totalStudents, stats.dismissedCount, sortedDismissedReasons, dismissedStudentsList, teamsWithLinks, stats.activeCount, {}, [], highlightText, timelineStartDate, timelineEndDate);
+        }
+        
+        function generateTimelineHTML(startDateStr, endDateStr) {
+            if (!startDateStr || !endDateStr) {
+                return '<p style="margin: 0; color: #666666; font-size: 14px; font-style: italic; font-family: Arial, sans-serif;">[Enter start and end dates to generate timeline]</p>';
+            }
+            
+            const startDate = new Date(startDateStr);
+            const endDate = new Date(endDateStr);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Reset time to compare dates only
+            
+            const weeks = [];
+            const currentDate = new Date(startDate);
+            
+            // Generate 15 weeks
+            for (let i = 0; i < 15; i++) {
+                const weekDate = new Date(currentDate);
+                weekDate.setDate(currentDate.getDate() + (i * 7));
+                weeks.push(weekDate);
+            }
+            
+            // Find current week
+            let currentWeekIndex = -1;
+            for (let i = 0; i < weeks.length; i++) {
+                const weekStart = new Date(weeks[i]);
+                weekStart.setHours(0, 0, 0, 0);
+                const weekEnd = new Date(weekStart);
+                weekEnd.setDate(weekStart.getDate() + 6);
+                
+                if (today >= weekStart && today <= weekEnd) {
+                    currentWeekIndex = i;
+                    break;
+                }
+            }
+            
+            // If today is before start or after end, don't highlight
+            const firstWeekStart = new Date(weeks[0]);
+            firstWeekStart.setHours(0, 0, 0, 0);
+            const lastWeekEnd = new Date(weeks[weeks.length - 1]);
+            lastWeekEnd.setDate(lastWeekEnd.getDate() + 6);
+            lastWeekEnd.setHours(23, 59, 59, 999);
+            
+            if (today < firstWeekStart || today > lastWeekEnd) {
+                currentWeekIndex = -1;
+            }
+            
+            // Group weeks by month
+            const monthGroups = {};
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'];
+            const monthNamesShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            
+            weeks.forEach((week, index) => {
+                const month = monthNames[week.getMonth()];
+                if (!monthGroups[month]) {
+                    monthGroups[month] = [];
+                }
+                monthGroups[month].push({ week: index + 1, date: week });
+            });
+            
+            // Generate month header row
+            let monthHeaderHTML = '<tr>';
+            const monthOrder = Object.keys(monthGroups);
+            monthOrder.forEach((month, index) => {
+                const colspan = monthGroups[month].length;
+                const isLast = index === monthOrder.length - 1;
+                monthHeaderHTML += `<td colspan="${colspan}" style="background: linear-gradient(to bottom, #8b5cf6 0%, #a78bfa 100%); background-color: #8b5cf6; color: #ffffff; font-size: 10px; font-weight: bold; font-family: Arial, sans-serif; text-align: center; padding: 5px 2px; ${!isLast ? 'border-right: 1px solid #d8b4fe;' : ''} border-bottom: 1px solid #d8b4fe;">${month}</td>`;
+            });
+            monthHeaderHTML += '</tr>';
+            
+            // Generate week header row
+            let weekHeaderHTML = '<tr>';
+            weeks.forEach((week, index) => {
+                const isLast = index === weeks.length - 1;
+                const day = week.getDate();
+                const monthShort = monthNamesShort[week.getMonth()];
+                const isCurrentWeek = index === currentWeekIndex;
+                
+                // Highlight current week with bright yellow/orange border and background
+                const weekStyle = isCurrentWeek 
+                    ? `background: linear-gradient(to bottom, #fef3c7 0%, #fde68a 100%); background-color: #fef3c7; border: 3px solid #f59e0b; font-weight: bold;`
+                    : `background: linear-gradient(to bottom, #f3e8ff 0%, #faf5ff 100%); background-color: #f3e8ff;`;
+                
+                weekHeaderHTML += `<td style="${weekStyle} color: ${isCurrentWeek ? '#92400e' : '#333333'}; font-size: 9px; font-weight: bold; font-family: Arial, sans-serif; text-align: center; padding: 4px 2px; ${!isLast ? 'border-right: 1px solid #d8b4fe;' : ''} border-bottom: 1px solid #d8b4fe;">W${index + 1}<br>${day}-${monthShort}${isCurrentWeek ? '<br><span style="font-size: 11px; font-weight: bold; color: #f59e0b; background-color: #ffffff; padding: 2px 5px; display: inline-block; margin-top: 2px; border: 1px solid #f59e0b;">● NOW</span>' : ''}</td>`;
+            });
+            weekHeaderHTML += '</tr>';
+            
+            return `
+                <table cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #ffffff; border: 1px solid #e0e0e0;">
+                    ${monthHeaderHTML}
+                    ${weekHeaderHTML}
+                    <!-- Deep Dive / Project Participation Row -->
+                    <tr>
+                        <!-- Deep Dive: AWS Sandbox Course (orange gradient) - Weeks 1-3 (3 weeks) -->
+                        <td colspan="3" style="background: linear-gradient(135deg, #f97316 0%, #fb923c 100%); background-color: #f97316; color: #ffffff; font-size: 9px; font-weight: bold; font-family: Arial, sans-serif; text-align: center; padding: 6px 2px; border-right: 1px solid #d8b4fe; border-bottom: 1px solid #d8b4fe;">
+                            Deep Dive: AWS Sandbox Course
+                        </td>
+                        <!-- Project Participation (purple gradient) - Weeks 4-15 (12 weeks, including Final) -->
+                        <td colspan="12" style="background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%); background-color: #8b5cf6; color: #ffffff; font-size: 9px; font-weight: bold; font-family: Arial, sans-serif; text-align: center; padding: 6px 2px; border-bottom: 1px solid #d8b4fe;">
+                            Project Participation
+                        </td>
+                    </tr>
+                    
+                    <!-- Trainings / Sprints Row -->
+                    <tr>
+                        <!-- Soft skill trainings (blue) - Weeks 1-3 (3 weeks) -->
+                        <td colspan="3" style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); background-color: #dbeafe; color: #1e40af; font-size: 9px; font-weight: 600; font-family: Arial, sans-serif; text-align: center; padding: 6px 2px; border-right: 1px solid #d8b4fe; border-bottom: 1px solid #d8b4fe;">
+                            + Soft skill, Scrum, Jira and other trainings
+                        </td>
+                        <!-- Sprint-0 (green) - Week 4 (1 week) -->
+                        <td style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); background-color: #d1fae5; color: #065f46; font-size: 9px; font-weight: 600; font-family: Arial, sans-serif; text-align: center; padding: 6px 2px; border-right: 1px solid #d8b4fe; border-bottom: 1px solid #d8b4fe;">
+                            Sprint-0
+                        </td>
+                        <!-- Sprint-1 (yellow) - Weeks 5-6 (2 weeks) -->
+                        <td colspan="2" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); background-color: #fef3c7; color: #92400e; font-size: 9px; font-weight: 600; font-family: Arial, sans-serif; text-align: center; padding: 6px 2px; border-right: 1px solid #d8b4fe; border-bottom: 1px solid #d8b4fe;">
+                            Sprint-1
+                        </td>
+                        <!-- Sprint-2 (orange) - Weeks 7-8 (2 weeks) -->
+                        <td colspan="2" style="background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%); background-color: #fed7aa; color: #9a3412; font-size: 9px; font-weight: 600; font-family: Arial, sans-serif; text-align: center; padding: 6px 2px; border-right: 1px solid #d8b4fe; border-bottom: 1px solid #d8b4fe;">
+                            Sprint-2
+                        </td>
+                        <!-- Sprint-3 (red) - Weeks 9-10 (2 weeks) -->
+                        <td colspan="2" style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); background-color: #fee2e2; color: #991b1b; font-size: 9px; font-weight: 600; font-family: Arial, sans-serif; text-align: center; padding: 6px 2px; border-right: 1px solid #d8b4fe; border-bottom: 1px solid #d8b4fe;">
+                            Sprint-3
+                        </td>
+                        <!-- Sprint-4 (purple) - Weeks 11-12 (2 weeks) -->
+                        <td colspan="2" style="background: linear-gradient(135deg, #e9d5ff 0%, #ddd6fe 100%); background-color: #e9d5ff; color: #6b21a8; font-size: 9px; font-weight: 600; font-family: Arial, sans-serif; text-align: center; padding: 6px 2px; border-right: 1px solid #d8b4fe; border-bottom: 1px solid #d8b4fe;">
+                            Sprint-4
+                        </td>
+                        <!-- Sprint-5 (teal) - Weeks 13-14 (2 weeks) -->
+                        <td colspan="2" style="background: linear-gradient(135deg, #ccfbf1 0%, #99f6e4 100%); background-color: #ccfbf1; color: #134e4a; font-size: 9px; font-weight: 600; font-family: Arial, sans-serif; text-align: center; padding: 6px 2px; border-right: 1px solid #d8b4fe; border-bottom: 1px solid #d8b4fe;">
+                            Sprint-5
+                        </td>
+                        <!-- Final (indigo) - Week 15 (1 week) -->
+                        <td style="background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); background-color: #e0e7ff; color: #3730a3; font-size: 9px; font-weight: 600; font-family: Arial, sans-serif; text-align: center; padding: 6px 2px; border-bottom: 1px solid #d8b4fe;">
+                            Final
+                        </td>
+                    </tr>
+                </table>`;
+        }
+        
+        function generateFullTemplateHTML(runNumber, startDate, coordinator, sprintNumber, totalStudents, dismissedCount, dismissedReasons, dismissedStudentsList, teamsWithLinks, activeCount, regions, skills, highlightText, timelineStartDate, timelineEndDate) {
+            // This function will generate the full HTML based on email_template.html structure
+            // I'll need to read the actual template file and replace placeholders
+            // For now, creating a simplified version
+            
+            let regionsHTML = '';
+            // Sort regions: standard ones first, then custom
+            const regionOrder = ['WCE', 'UA', 'CEE', 'LatAm'];
+            const customRegions = Object.keys(regions).filter(r => !regionOrder.includes(r));
+            const allRegions = [...regionOrder, ...customRegions];
+            
+            allRegions.forEach(code => {
+                if (regions[code] && regions[code].total > 0) {
+                    const region = regions[code];
+                    const locations = Object.keys(region.locations).map(loc => 
+                        `${loc} (${region.locations[loc]})`
+                    ).join(' • ');
+                    
+                    const regionColors = {
+                        'WCE': { bg: '#fef3c7', border: '#f59e0b', text: '#92400e', num: '#f59e0b' },
+                        'UA': { bg: '#dbeafe', border: '#3b82f6', text: '#1e40af', num: '#3b82f6' },
+                        'CEE': { bg: '#d1fae5', border: '#10b981', text: '#065f46', num: '#10b981' },
+                        'LatAm': { bg: '#fce7f3', border: '#ec4899', text: '#831843', num: '#ec4899' }
+                    };
+                    
+                    const colors = regionColors[code] || { bg: '#f0f0f0', border: '#999999', text: '#333333', num: '#666666' };
+                    
+                    regionsHTML += `
+                        <tr>
+                            <td style="padding: 10px 12px; border-bottom: 1px solid #e0e0e0; background: linear-gradient(to right, ${colors.bg} 0%, #ffffff 100%); background-color: ${colors.bg}; border-left: 3px solid ${colors.border};">
+                                <table cellspacing="0" cellpadding="0" border="0" width="100%">
+                                    <tr>
+                                        <td style="color: ${colors.text}; font-size: 15px; font-weight: bold; font-family: Arial, sans-serif; width: 20%;">
+                                            ${code}
+                                        </td>
+                                        <td style="color: ${colors.num}; font-size: 18px; font-weight: bold; font-family: Arial, sans-serif; text-align: right; width: 15%;">
+                                            ${region.total}
+                                        </td>
+                                        <td style="color: ${colors.text}; font-size: 13px; font-family: Arial, sans-serif; padding-left: 12px;">
+                                            ${locations}
+                                        </td>
+                                    </tr>
+                                </table>
+                        </td>
+                    </tr>`;
+                }
+            });
+            
+            let skillsHTML = '';
+            const skillColors = [
+                { bg: '#fee2e2', border: '#ef4444', text: '#991b1b', num: '#ef4444' },
+                { bg: '#e0e7ff', border: '#6366f1', text: '#312e81', num: '#6366f1' },
+                { bg: '#fef3c7', border: '#f59e0b', text: '#92400e', num: '#f59e0b' },
+                { bg: '#dbeafe', border: '#3b82f6', text: '#1e40af', num: '#3b82f6' },
+                { bg: '#d1fae5', border: '#10b981', text: '#065f46', num: '#10b981' }
+            ];
+            
+            skills.forEach((skill, index) => {
+                const colors = skillColors[index % skillColors.length];
+                const isLast = index === skills.length - 1;
+                skillsHTML += `
+                    <tr>
+                        <td style="padding: 8px 12px; ${!isLast ? 'border-bottom: 1px solid #e0e0e0;' : ''} background: linear-gradient(to right, ${colors.bg} 0%, #ffffff 100%); background-color: ${colors.bg}; border-left: 3px solid ${colors.border};">
+                            <table cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <tr>
+                                    <td style="color: ${colors.text}; font-size: 14px; font-weight: bold; font-family: Arial, sans-serif;">${skill.name}</td>
+                                    <td align="right" style="color: ${colors.num}; font-size: 14px; font-weight: bold; font-family: Arial, sans-serif;">${skill.count}</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>`;
+            });
+            
+            // Load the actual template - we'll use fetch to get it
+            // For now, return a complete HTML structure
+            return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X-Stack Project Education Course - Run #${runNumber} Status</title>
+    <!--[if mso]>
+    <style type="text/css">
+        body, table, td {font-family: Arial, sans-serif !important;}
+    </style>
+    <![endif]-->
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; background-color: #f5f5f5;">
+    <!-- Main Container -->
+    <table cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f5f5f5; padding: 20px 0;">
+        <tr>
+            <td align="center">
+                <!-- Email Content Container -->
+                <table cellspacing="0" cellpadding="0" border="0" width="600" style="background-color: #ffffff; border: 1px solid #e0e0e0;">
+                    <!-- Header -->
+                    <tr>
+                        <td style="background-color: #6366f1; padding: 30px 40px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%); background-color: #6366f1;">
+                            <table cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <tr>
+                                    <td>
+                                        <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: bold; font-family: Arial, sans-serif; text-shadow: 0 1px 2px rgba(0,0,0,0.1);">
+                                            X-Stack Project Education Course
+                                        </h1>
+                                        <p style="margin: 8px 0 0 0; color: #f3f4f6; font-size: 16px; font-family: Arial, sans-serif;">
+                                            Run #${runNumber} - Status Update
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                    <!-- Greeting -->
+                    <tr>
+                        <td style="padding: 30px 40px 20px 40px;">
+                            <p style="margin: 0; color: #333333; font-size: 16px; line-height: 1.6; font-family: Arial, sans-serif;">
+                                Dear colleagues,
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Introduction -->
+                    <tr>
+                        <td style="padding: 0 40px 20px 40px;">
+                            <p style="margin: 0; color: #333333; font-size: 16px; line-height: 1.6; font-family: Arial, sans-serif;">
+                                This is a status report for <strong>X-Stack Project Education Course – Run #${runNumber}</strong> based on the results of <strong>Sprint ${sprintNumber}</strong>.
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Key Information Section -->
+                    <tr>
+                        <td style="padding: 0 40px 20px 40px;">
+                            <table cellspacing="0" cellpadding="0" border="0" width="100%" style="background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 50%, #e0e7ff 100%); background-color: #e0f2fe; border-left: 4px solid #0ea5e9;">
+                                <tr>
+                                    <td style="padding: 20px;">
+                                        <h2 style="margin: 0 0 15px 0; color: #0c4a6e; font-size: 18px; font-weight: bold; font-family: Arial, sans-serif;">
+                                            Phase #2: Project Participation: Sprint ${sprintNumber}
+                                        </h2>
+                                        
+                                        <!-- Start Date -->
+                                        <table cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 12px;">
+                                            <tr>
+                                                <td style="padding: 8px 0; border-bottom: 1px solid #c7d2fe;">
+                                                    <table cellspacing="0" cellpadding="0" border="0" width="100%">
+                                                        <tr>
+                                                            <td style="color: #333333; font-size: 14px; font-weight: bold; font-family: Arial, sans-serif; width: 50%;">Start Date:</td>
+                                                            <td style="color: #0ea5e9; font-size: 14px; font-weight: bold; font-family: Arial, sans-serif; text-align: right;">${startDate}</td>
+                                    </tr>
+                            </table>
+                        </td>
+                    </tr>
+                                        </table>
+                                        
+                                        <!-- Run Coordinator -->
+                                        <table cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 12px;">
+                                            <tr>
+                                                <td style="padding: 8px 0; border-bottom: 1px solid #c7d2fe;">
+                                                    <table cellspacing="0" cellpadding="0" border="0" width="100%">
+                                                        <tr>
+                                                            <td style="color: #333333; font-size: 14px; font-weight: bold; font-family: Arial, sans-serif; width: 50%;">Run Coordinator:</td>
+                                                            <td style="color: #0ea5e9; font-size: 14px; font-weight: bold; font-family: Arial, sans-serif; text-align: right;">${coordinator}</td>
+                                                        </tr>
+                                                    </table>
+                        </td>
+                    </tr>
+                                        </table>
+                                        
+                                        <!-- Total Number of Students -->
+                                        <table cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 12px;">
+                                            <tr>
+                                                <td style="padding: 8px 0;">
+                                                    <table cellspacing="0" cellpadding="0" border="0" width="100%">
+                                                        <tr>
+                                                            <td style="color: #333333; font-size: 14px; font-weight: bold; font-family: Arial, sans-serif; width: 50%;">Total Number of Students:</td>
+                                                            <td style="color: #0ea5e9; font-size: 20px; font-weight: bold; font-family: Arial, sans-serif; text-align: right;">${totalStudents}</td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        
+                                        <!-- Active Students -->
+                                        <table cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 12px;">
+                                            <tr>
+                                                <td style="padding: 8px 0; border-top: 1px solid #c7d2fe;">
+                                                    <table cellspacing="0" cellpadding="0" border="0" width="100%">
+                                                        <tr>
+                                                            <td style="color: #333333; font-size: 14px; font-weight: bold; font-family: Arial, sans-serif; width: 50%;">Active Students:</td>
+                                                            <td style="color: #10b981; font-size: 18px; font-weight: bold; font-family: Arial, sans-serif; text-align: right;">${activeCount}</td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        
+                                        <!-- Dismissed Students -->
+                                        <table cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 12px;">
+                                            <tr>
+                                                <td style="padding: 8px 0; border-top: 1px solid #c7d2fe;">
+                                                    <table cellspacing="0" cellpadding="0" border="0" width="100%">
+                                                        <tr>
+                                                            <td style="color: #333333; font-size: 14px; font-weight: bold; font-family: Arial, sans-serif; width: 50%;">Dismissed Students:</td>
+                                                            <td style="color: #ef4444; font-size: 18px; font-weight: bold; font-family: Arial, sans-serif; text-align: right;">${dismissedCount}</td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                    ${teamsWithLinks && teamsWithLinks.length > 0 ? `
+                    <!-- Team Demo Links Section -->
+                    <tr>
+                        <td style="padding: 20px 40px;">
+                            <h3 style="margin: 0 0 10px 0; color: #333333; font-size: 18px; font-weight: bold; border-bottom: 3px solid #8b5cf6; padding-bottom: 8px; font-family: Arial, sans-serif;">
+                                Team Demo Links
+                            </h3>
+                            <p style="margin: 0 0 15px 0; color: #666666; font-size: 14px; line-height: 1.6; font-family: Arial, sans-serif;">
+                                Below are the demo recordings from <strong>Sprint ${sprintNumber}</strong>:
+                            </p>
+                            
+                            <table cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #ffffff; border: 1px solid #e0e0e0;">
+                                <tr>
+                                    <td style="padding: 12px;">
+                                        <table cellspacing="0" cellpadding="0" border="0" width="100%" style="border-collapse: collapse;">
+                                            <tr style="background: #f3e8ff;">
+                                                <th style="padding: 10px; text-align: left; border-bottom: 2px solid #8b5cf6; color: #6b21a8; font-size: 14px; font-weight: bold; font-family: Arial, sans-serif;">Team</th>
+                                                <th style="padding: 10px; text-align: left; border-bottom: 2px solid #8b5cf6; color: #6b21a8; font-size: 14px; font-weight: bold; font-family: Arial, sans-serif;">Demo Link</th>
+                                    </tr>
+                                            ${teamsWithLinks.map((team, index) => {
+                                                const rowBg = index % 2 === 0 ? '#ffffff' : '#faf5ff';
+                                                const hasLink = team.link && team.link.trim() !== '';
+                                                return `
+                                                    <tr style="background: ${rowBg};">
+                                                        <td style="padding: 10px; border-bottom: 1px solid #e9d5ff; color: #333333; font-size: 14px; font-weight: bold; font-family: Arial, sans-serif;">${escapeHtml(team.name)}</td>
+                                                        <td style="padding: 10px; border-bottom: 1px solid #e9d5ff; color: #666666; font-size: 13px; font-family: Arial, sans-serif;">
+                                                            ${hasLink ? `
+                                                                <a href="${escapeHtml(team.link)}" target="_blank" style="color: #8b5cf6; text-decoration: none; font-weight: bold;">
+                                                                    📹 Recording
+                                                                </a>
+                                                            ` : `
+                                                                <span style="color: #ef4444; font-weight: bold;">🚫 Disbanded</span>
+                                                            `}
+                                                        </td>
+                                                    </tr>`;
+                                            }).join('')}
+                            </table>
+                        </td>
+                    </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    ` : ''}
+                    
+                    ${dismissedCount > 0 ? `
+                    <!-- Dismissed Students Reasons Section -->
+                    <tr>
+                        <td style="padding: 20px 40px;">
+                            <h3 style="margin: 0 0 15px 0; color: #333333; font-size: 18px; font-weight: bold; border-bottom: 3px solid #ef4444; padding-bottom: 8px; font-family: Arial, sans-serif;">
+                                Dismissed Students by Reason
+                            </h3>
+                            
+                            <table cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #ffffff; border: 1px solid #e0e0e0; margin-bottom: 20px;">
+                                <tr>
+                                    <td style="padding: 12px;">
+                                        <table cellspacing="0" cellpadding="0" border="0" width="100%">
+                                            ${dismissedReasons.map((reason, index) => {
+                                                const isLast = index === dismissedReasons.length - 1;
+                                                
+                                                // Determine color based on reason name
+                                                const reasonLower = reason.name.toLowerCase();
+                                                let colors;
+                                                
+                                                if (reasonLower.includes('focused on another education activity') || 
+                                                    reasonLower.includes('focused on another education')) {
+                                                    // Yellow for "Focused on another education activity"
+                                                    colors = { bg: '#fef3c7', border: '#f59e0b', text: '#92400e', num: '#f59e0b' };
+                                                } else if (reasonLower.includes('moved to production projects') || 
+                                                          reasonLower.includes('moved to production')) {
+                                                    // Green for "Moved to Production Projects"
+                                                    colors = { bg: '#d1fae5', border: '#10b981', text: '#065f46', num: '#10b981' };
+                                                } else if (reasonLower.includes('left project due to lack of progress') || 
+                                                          reasonLower.includes('lack of progress')) {
+                                                    // Light red for "Left project due to lack of progress"
+                                                    colors = { bg: '#fee2e2', border: '#f87171', text: '#991b1b', num: '#f87171' };
+                                                } else if (reasonLower.includes('left company') || 
+                                                          reasonLower.includes('accepted outside offer')) {
+                                                    // Red for "Left company (accepted outside offer)"
+                                                    colors = { bg: '#fee2e2', border: '#ef4444', text: '#991b1b', num: '#ef4444' };
+                                                } else {
+                                                    // Default color for other reasons
+                                                    colors = { bg: '#f3f4f6', border: '#9ca3af', text: '#374151', num: '#6b7280' };
+                                                }
+                                                
+                                                return `
+                                                    <tr>
+                                                        <td style="padding: 8px 12px; ${!isLast ? 'border-bottom: 1px solid #e0e0e0;' : ''} background: linear-gradient(to right, ${colors.bg} 0%, #ffffff 100%); background-color: ${colors.bg}; border-left: 3px solid ${colors.border};">
+                                                            <table cellspacing="0" cellpadding="0" border="0" width="100%">
+                                                                <tr>
+                                                                    <td style="color: ${colors.text}; font-size: 14px; font-weight: bold; font-family: Arial, sans-serif;">${reason.name}</td>
+                                                                    <td align="right" style="color: ${colors.num}; font-size: 14px; font-weight: bold; font-family: Arial, sans-serif;">${reason.count}</td>
+                                    </tr>
+                                                            </table>
+                                                        </td>
+                                                    </tr>`;
+                                            }).join('')}
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <!-- Dismissed Students List -->
+                            <h3 style="margin: 20px 0 15px 0; color: #333333; font-size: 16px; font-weight: bold; font-family: Arial, sans-serif;">
+                                Dismissed Students Details
+                            </h3>
+                            
+                            <table cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #ffffff; border: 1px solid #e0e0e0;">
+                                <tr>
+                                    <td style="padding: 12px;">
+                                        <table cellspacing="0" cellpadding="0" border="0" width="100%" style="border-collapse: collapse;">
+                                            <tr style="background: #fee2e2;">
+                                                <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ef4444; color: #991b1b; font-size: 14px; font-weight: bold; font-family: Arial, sans-serif;">Student</th>
+                                                <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ef4444; color: #991b1b; font-size: 14px; font-weight: bold; font-family: Arial, sans-serif;">Status</th>
+                                                <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ef4444; color: #991b1b; font-size: 14px; font-weight: bold; font-family: Arial, sans-serif;">Reason</th>
+                                    </tr>
+                                            ${dismissedStudentsList.map((student, index) => {
+                                                // Determine row color based on reason
+                                                const reasonLower = (student.reason || '').toLowerCase();
+                                                let rowBg, borderColor, reasonColor;
+                                                
+                                                if (reasonLower.includes('moved to production projects') || 
+                                                    reasonLower.includes('moved to production')) {
+                                                    // Green for "Moved to Production Projects"
+                                                    rowBg = index % 2 === 0 ? '#f0fdf4' : '#dcfce7';
+                                                    borderColor = '#86efac';
+                                                    reasonColor = '#065f46';
+                                                } else {
+                                                    // Default red tones for other reasons
+                                                    rowBg = index % 2 === 0 ? '#ffffff' : '#fef2f2';
+                                                    borderColor = '#fee2e2';
+                                                    reasonColor = '#666666';
+                                                }
+                                                
+                                                return `
+                                                    <tr style="background: ${rowBg};">
+                                                        <td style="padding: 10px; border-bottom: 1px solid ${borderColor}; color: #333333; font-size: 13px; font-family: Arial, sans-serif;">${escapeHtml(student.student)}</td>
+                                                        <td style="padding: 10px; border-bottom: 1px solid ${borderColor}; color: #ef4444; font-size: 13px; font-weight: bold; font-family: Arial, sans-serif;">${escapeHtml(student.status)}</td>
+                                                        <td style="padding: 10px; border-bottom: 1px solid ${borderColor}; color: ${reasonColor}; font-size: 13px; font-weight: ${reasonLower.includes('moved to production') ? 'bold' : 'normal'}; font-family: Arial, sans-serif;">${escapeHtml(student.reason)}</td>
+                                                    </tr>`;
+                                            }).join('')}
+                            </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    ` : ''}
+                    
+                    ${Object.keys(regions).length > 0 ? `
+                    <!-- Number of Students by Countries Section -->
+                    <tr>
+                        <td style="padding: 20px 40px;">
+                            <h3 style="margin: 0 0 15px 0; color: #333333; font-size: 18px; font-weight: bold; border-bottom: 3px solid #10b981; padding-bottom: 8px; font-family: Arial, sans-serif;">
+                                Number of Students by Countries
+                            </h3>
+                            
+                            <!-- Compact Countries Table -->
+                            <table cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #ffffff; border: 1px solid #e0e0e0;">
+                                <tr>
+                                    <td style="padding: 12px;">
+                                        <table cellspacing="0" cellpadding="0" border="0" width="100%">
+                                            ${regionsHTML}
+                                        </table>
+                                    </td>
+                                    </tr>
+                            </table>
+                        </td>
+                    </tr>
+                            ` : ''}
+                            
+                    ${skills.length > 0 ? `
+                    <!-- Number of Students by Skills Section -->
+                    <tr>
+                        <td style="padding: 20px 40px;">
+                            <h3 style="margin: 0 0 15px 0; color: #333333; font-size: 18px; font-weight: bold; border-bottom: 3px solid #8b5cf6; padding-bottom: 8px; font-family: Arial, sans-serif;">
+                                Number of Students by Skills
+                            </h3>
+                            
+                            <table cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #ffffff; border: 1px solid #e0e0e0;">
+                                <tr>
+                                    <td style="padding: 12px;">
+                                        <table cellspacing="0" cellpadding="0" border="0" width="100%">
+                                            ${skillsHTML}
+                                        </table>
+                                    </td>
+                                    </tr>
+                            </table>
+                        </td>
+                    </tr>
+                            ` : ''}
+                            
+                    <!-- Timeline Section -->
+                    <tr>
+                        <td style="padding: 15px 40px;">
+                            <h3 style="margin: 0 0 10px 0; color: #333333; font-size: 18px; font-weight: bold; border-bottom: 3px solid #8b5cf6; padding-bottom: 6px; font-family: Arial, sans-serif;">
+                                Timeline
+                            </h3>
+                            ${generateTimelineHTML(timelineStartDate, timelineEndDate)}
+                        </td>
+                    </tr>
+                    
+                    <!-- Highlight Section -->
+                    ${highlightText ? `
+                    <tr>
+                        <td style="padding: 20px 40px 30px 40px;">
+                            <table cellspacing="0" cellpadding="0" border="0" width="100%" style="background: linear-gradient(to right, #fef3c7 0%, #fde68a 100%); background-color: #fef3c7; border-left: 4px solid #f59e0b;">
+                                <tr>
+                                    <td style="padding: 15px;">
+                                        <p style="margin: 0; color: #856404; font-size: 14px; line-height: 1.6; font-family: Arial, sans-serif;">
+                                            ${highlightText}
+                                        </p>
+                        </td>
+                    </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    ` : ''}
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="padding: 20px 40px; background: linear-gradient(to bottom, #f0f4ff 0%, #eef2ff 100%); background-color: #f0f4ff; border-top: 2px solid #c7d2fe;">
+                            <p style="margin: 0; color: #6366f1; font-size: 12px; font-weight: 600; text-align: center; font-family: Arial, sans-serif;">
+                                X-Stack Project Education Course
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>`;
+        }
+        
+        function copyHTML() {
+            const htmlCode = document.getElementById('htmlCode').value;
+            if (!htmlCode) {
+                showAlert('Please generate the letter first', 'error');
+                return;
+            }
+            navigator.clipboard.writeText(htmlCode).then(() => {
+                showAlert('✅ HTML code copied to clipboard!', 'success');
+            }).catch(err => {
+                showAlert('❌ Copy error: ' + err, 'error');
+            });
+        }
+        
+        function downloadHTML() {
+            const htmlCode = document.getElementById('htmlCode').value;
+            if (!htmlCode) {
+                showAlert('Please generate the letter first', 'error');
+                return;
+            }
+            const blob = new Blob([htmlCode], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `X-Stack_Run_${document.getElementById('runNumber').value}_Status.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showAlert('✅ File downloaded!', 'success');
+        }
+        
+        // Auto-update on form changes - but only if we have data
+        document.getElementById('letterForm').addEventListener('input', (e) => {
+            if (parsedData && parsedData.length > 0) {
+                // If team link input changed, regenerate letter
+                if (e.target.classList.contains('team-link-input')) {
+                    generateLetter();
+                } else {
+                    generateLetter();
+                }
+            }
+        });
+        document.getElementById('letterForm').addEventListener('change', (e) => {
+            if (parsedData && parsedData.length > 0) {
+                // If team link input changed, regenerate letter
+                if (e.target.classList.contains('team-link-input')) {
+                    generateLetter();
+                } else {
+                    generateLetter();
+                }
+            }
+        });
+        
+
+    </script>
+</body>
+</html>
+
+

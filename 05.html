@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+    <html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>05. AWS Accounts Creation Request - X-Stack Letter Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .back-link {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 6px;
+            transition: background 0.3s;
+        }
+        
+        .back-link:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+        
+        @media (max-width: 1200px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .form-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .form-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .preview-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .preview-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .btn {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        #preview {
+            width: 100%;
+            height: 600px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            background: white;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="index.html" class="back-link">← Back</a>
+            <h1>☁️ 05. AWS Accounts Creation Request</h1>
+            <p>AWS account creation request letter generator</p>
+        </div>
+        
+        <div class="content">
+            <!-- Form Section -->
+            <div class="form-section">
+                <h2>📝 Enter Data</h2>
+                
+                <form id="awsForm">
+                    <div class="form-group">
+                        <label for="recipientName">Recipient Name:</label>
+                        <input type="text" id="recipientName" value="Dmytro" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="runNumber">Run Number:</label>
+                        <input type="number" id="runNumber" value="16" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="kbLink">KB Link:</label>
+                        <input type="text" id="kbLink" placeholder="https://..." required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="teamsLink">MS Teams Group Link:</label>
+                        <input type="text" id="teamsLink" placeholder="https://..." required>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Preview Section -->
+            <div class="preview-section">
+                <h2>👁️ Preview</h2>
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <button class="btn btn-primary" onclick="updatePreview()">🔄 Update Preview</button>
+                    <button class="btn btn-success" onclick="copyAWSHTML()">📋 Copy HTML</button>
+                    <button class="btn btn-secondary" onclick="downloadAWSHTML()">💾 Download HTML</button>
+                    <button class="btn" style="background: #f59e0b; color: white; border: none;" onclick="window.open('09.html', '_blank')">📖 Instructions</button>
+                </div>
+                <iframe id="preview" src="about:blank"></iframe>
+            </div>
+        </div>
+        
+        <div style="text-align: center; padding: 20px; background: #f8f9fa; border-top: 1px solid #e0e0e0; color: #666; font-size: 12px;">
+            <p style="margin: 0;">Developer: <a href="mailto:Oleksandr_Tkachenko3@epam.com" style="color: #667eea; text-decoration: none;">Oleksandr Tkachenko</a></p>
+        </div>
+    </div>
+    
+    <script>
+        function generateAWSHTML() {
+            const recipientName = document.getElementById('recipientName').value || 'Dmytro';
+            const runNumber = document.getElementById('runNumber').value || '16';
+            const kbLink = document.getElementById('kbLink').value || '[LINK]';
+            const teamsLink = document.getElementById('teamsLink').value || '[LINK]';
+            
+            return `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <!--[if mso]>
+    <style type="text/css">
+        body, table, td {font-family: Arial, sans-serif !important;}
+    </style>
+    <![endif]-->
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f4f4f4;">
+        <tr>
+            <td style="padding: 40px 20px;">
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <!-- Header -->
+                    <tr>
+                        <td style="padding: 30px 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px 8px 0 0;">
+                            <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: bold; font-family: Arial, sans-serif;">
+                                X-Stack Project Education Course
+                            </h1>
+                            <p style="margin: 10px 0 0 0; color: #ffffff; font-size: 16px; font-family: Arial, sans-serif;">
+                                AWS Accounts Creation Request
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 40px;">
+                            <p style="margin: 0 0 20px 0; color: #333333; font-size: 14px; line-height: 1.6; font-family: Arial, sans-serif;">
+                                Dear ${escapeHtml(recipientName)},
+                            </p>
+                            
+                            <p style="margin: 0 0 20px 0; color: #333333; font-size: 14px; line-height: 1.6; font-family: Arial, sans-serif;">
+                                Could you please support with the AWS account creation for Run#${escapeHtml(runNumber)} of Global Project Education?
+                            </p>
+                            
+                            <p style="margin: 0 0 20px 0; color: #333333; font-size: 14px; line-height: 1.6; font-family: Arial, sans-serif;">
+                                The students list is attached.
+                            </p>
+                            
+                            <ul style="margin: 0 0 20px 0; padding-left: 20px; color: #333333; font-size: 14px; line-height: 1.8; font-family: Arial, sans-serif;">
+                                <li style="margin-bottom: 10px;">
+                                    <strong>KB:</strong> <a href="${escapeHtml(kbLink)}" style="color: #667eea; text-decoration: none; font-weight: 600;">📚 Open Knowledge Base</a>
+                                </li>
+                                <li style="margin-bottom: 10px;">
+                                    <strong>MS Teams Group:</strong> <a href="${escapeHtml(teamsLink)}" style="color: #667eea; text-decoration: none; font-weight: 600;">💬 Join MS Teams Group</a>
+                                </li>
+                            </ul>
+                            
+                            <p style="margin: 0 0 20px 0; color: #333333; font-size: 14px; line-height: 1.6; font-family: Arial, sans-serif;">
+                                Thank you in advance,
+                            </p>
+                            
+                            <p style="margin: 0; color: #333333; font-size: 14px; line-height: 1.6; font-family: Arial, sans-serif;">
+                                Best Regards,
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="padding: 20px 40px; background: linear-gradient(to bottom, #f0f4ff 0%, #eef2ff 100%); background-color: #f0f4ff; border-top: 2px solid #c7d2fe;">
+                            <p style="margin: 0; color: #6366f1; font-size: 12px; font-weight: 600; text-align: center; font-family: Arial, sans-serif;">
+                                X-Stack Project Education Course
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+            `;
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function updatePreview() {
+            const preview = document.getElementById('preview');
+            const html = generateAWSHTML();
+            preview.srcdoc = html;
+        }
+        
+        function copyAWSHTML() {
+            const html = generateAWSHTML();
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(html).then(() => {
+                    alert('✅ HTML copied to clipboard!');
+                }).catch(err => {
+                    console.error('Failed to copy:', err);
+                    fallbackCopy(html);
+                });
+            } else {
+                fallbackCopy(html);
+            }
+        }
+        
+        function fallbackCopy(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                alert('✅ HTML copied to clipboard!');
+            } catch (err) {
+                alert('❌ Failed to copy. Please select and copy manually.');
+            }
+            document.body.removeChild(textArea);
+        }
+        
+        function downloadAWSHTML() {
+            const html = generateAWSHTML();
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `AWS_Accounts_Creation_Request_Run${document.getElementById('runNumber').value || '16'}.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // Initialize preview on load
+        window.addEventListener('DOMContentLoaded', () => {
+            updatePreview();
+            
+            // Auto-update preview when form fields change
+            document.getElementById('recipientName').addEventListener('input', updatePreview);
+            document.getElementById('runNumber').addEventListener('input', updatePreview);
+            document.getElementById('kbLink').addEventListener('input', updatePreview);
+            document.getElementById('teamsLink').addEventListener('input', updatePreview);
+        });
+    </script>
+</body>
+</html>
+
