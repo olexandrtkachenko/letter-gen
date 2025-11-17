@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV Generator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="theme-toggle-wrapper">
+        <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+            <span class="theme-icon">🌙</span>
+        </button>
+    </div>
+    
+    <div class="container">
+        <header>
+            <h1>📊 CSV Generator</h1>
+            <p class="subtitle">for educational tasks of project-based learning students</p>
+        </header>
+
+        <div class="main-content">
+            <div class="input-section">
+                <div class="paste-area-wrapper">
+                    <label for="excel-input" class="paste-label">
+                        <span class="paste-icon">📋</span>
+                        <span class="paste-text">Copy data from Excel and paste here</span>
+                        <span class="paste-hint">(Ctrl+V or Cmd+V)</span>
+                    </label>
+                    <textarea 
+                        id="excel-input" 
+                        placeholder="Select data in Excel → Ctrl+C (Cmd+C) → Ctrl+V (Cmd+V) here..."
+                        rows="8"
+                    ></textarea>
+                    <div class="paste-status" id="paste-status"></div>
+                </div>
+
+                <div class="settings-section">
+                    <div class="form-group">
+                        <label for="component-input">Component: <span class="required">*</span></label>
+                        <input type="text" id="component-input" placeholder="R15_Education" required />
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button id="process-btn" class="btn btn-primary">Process Data</button>
+                    <button id="clear-btn" class="btn btn-secondary">Clear</button>
+                </div>
+            </div>
+
+            <div class="preview-section" id="preview-section" style="display: none;">
+                <div class="preview-header">
+                    <h2>✨ Data Preview</h2>
+                    <div class="preview-info">
+                        <span id="row-count" class="info-badge"></span>
+                        <span id="col-count" class="info-badge"></span>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table id="preview-table"></table>
+                </div>
+                <div class="button-group">
+                    <button id="download-btn" class="btn btn-success">📥 Download CSV</button>
+                    <button id="copy-csv-btn" class="btn btn-info">📋 Copy CSV</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3>📖 How to use:</h3>
+            <ol>
+                <li><strong>Open Excel</strong> with student emails (Assignee column or just a list of emails)</li>
+                <li><strong>Select emails</strong> that need to be processed (Ctrl+A / Cmd+A for all)</li>
+                <li><strong>Copy</strong> the data (Ctrl+C / Cmd+C)</li>
+                <li><strong>Paste</strong> the data in the field above (Ctrl+V / Cmd+V)</li>
+                <li><strong>Enter Component:</strong> For example "R15_Education" (required field)</li>
+                <li><strong>Click "Process Data":</strong> Automatically generates Task + 7 Sub-tasks for each unique email</li>
+                <li><strong>Auto-split:</strong> If there are more than 248 rows, data is automatically split into multiple files (Jira limitation)</li>
+                <li><strong>Export:</strong> Download CSV file(s) or copy the first file to clipboard</li>
+            </ol>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
