@@ -151,6 +151,30 @@ header h1 {
     transition: color 0.3s ease;
 }
 
+.subtitle-small {
+    color: var(--text-muted);
+    font-size: 0.95em;
+    margin-top: 5px;
+    transition: color 0.3s ease;
+}
+
+.back-link {
+    display: inline-block;
+    color: var(--accent-primary);
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.back-link:hover {
+    background: rgba(102, 126, 234, 0.2);
+    transform: translateX(-5px);
+}
+
 .main-content {
     margin-bottom: 40px;
 }
@@ -222,6 +246,49 @@ header h1 {
     background: var(--bg-status-error);
     color: var(--text-status-error);
     border: 1px solid var(--text-status-error);
+}
+
+.paste-area {
+    background: var(--bg-input);
+    border: 2px dashed var(--accent-primary);
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: var(--text-primary);
+    font-family: inherit;
+}
+
+.paste-area:hover {
+    background: var(--bg-input-focus);
+    border-color: var(--accent-secondary);
+}
+
+.paste-area.has-data {
+    background: var(--bg-status-success);
+    border-color: var(--text-status-success);
+    color: var(--text-status-success);
+}
+
+.paste-area:focus {
+    outline: none;
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.paste-area p {
+    margin: 5px 0;
+    color: inherit;
+}
+
+.paste-area strong {
+    color: var(--accent-primary);
 }
 
 .settings-section {
