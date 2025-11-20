@@ -509,7 +509,7 @@ thead {
     position: sticky;
     top: 0;
     background: var(--accent-primary);
-    color: white;
+    
     z-index: 10;
 }
 

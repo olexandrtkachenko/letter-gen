@@ -1,6 +1,7 @@
 // Get DOM elements - wait for DOM to load
 let pasteArea, processBtn, clearBtn, preview, downloadBtn, copyCsvBtn, dataPreview, alerts;
-let componentInput, labelInput, teamsInput, themeToggle, themeIcon;
+let componentInput, teamsInput, themeToggle, themeIcon;
+let rowCount, colCount;
 
 function initDOM() {
     pasteArea = document.getElementById('pasteArea');
@@ -12,10 +13,11 @@ function initDOM() {
     dataPreview = document.getElementById('dataPreview');
     alerts = document.getElementById('alerts');
     componentInput = document.getElementById('component-input');
-    labelInput = document.getElementById('label-input');
     teamsInput = document.getElementById('teams-input');
     themeToggle = document.getElementById('theme-toggle');
     themeIcon = themeToggle ? themeToggle.querySelector('.theme-icon') : null;
+    rowCount = document.getElementById('row-count');
+    colCount = document.getElementById('col-count');
     
     if (!pasteArea || !processBtn || !clearBtn || !preview || !alerts) {
         console.error('Required DOM elements not found');
@@ -70,6 +72,18 @@ function setupEventListeners() {
     if (themeToggle) {
         initTheme();
         themeToggle.addEventListener('click', toggleTheme);
+    }
+    
+    // Prevent form submission (we handle it manually via Process button)
+    const projectForm = document.getElementById('projectForm');
+    if (projectForm) {
+        projectForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Trigger Process button click instead
+            if (processBtn) {
+                processBtn.click();
+            }
+        });
     }
     
     // Paste area handling
@@ -143,9 +157,11 @@ function setupEventListeners() {
     // Process button click handler
     if (processBtn) {
         processBtn.addEventListener('click', () => {
+            console.log('Process button clicked');
             const component = componentInput.value.trim();
-            const label = labelInput.value.trim();
-            const numTeams = parseInt(teamsInput.value);
+            const numTeams = parseInt(teamsInput.value, 10);
+            
+            console.log('Component:', component, 'Teams:', numTeams, 'Teams input value:', teamsInput.value, 'Parsed data length:', parsedTemplateData ? parsedTemplateData.length : 0);
             
             if (!component) {
                 showAlert('Please enter Component', 'error');
@@ -153,13 +169,7 @@ function setupEventListeners() {
                 return;
             }
             
-            if (!label) {
-                showAlert('Please enter Label', 'error');
-                labelInput.focus();
-                return;
-            }
-            
-            if (!numTeams || numTeams < 1) {
+            if (isNaN(numTeams) || numTeams < 1) {
                 showAlert('Please enter valid Number of Teams', 'error');
                 teamsInput.focus();
                 return;
@@ -170,7 +180,23 @@ function setupEventListeners() {
                 return;
             }
             
+            // Generate Label automatically: Component + "Epic" (e.g., R18 -> R18Epic)
+            const label = component + 'Epic';
+            console.log('Generated label:', label);
+            
             const generatedData = generateProjectsStructure(parsedTemplateData, component, label, numTeams);
+            console.log('Generated data length:', generatedData ? generatedData.length : 0);
+            
+            if (!generatedData || generatedData.length === 0) {
+                showAlert('Error: No data was generated. Please check your input.', 'error');
+                return;
+            }
+            
+            // Hide data preview (input data) and show generated CSV preview
+            if (dataPreview) {
+                dataPreview.classList.add('hidden');
+            }
+            
             displayPreview(generatedData);
         });
     }
@@ -188,12 +214,13 @@ function setupEventListeners() {
             csvFiles = [];
             parsedTemplateData = [];
             componentInput.value = '';
-            labelInput.value = '';
             teamsInput.value = '';
             if (dataPreview) dataPreview.classList.add('hidden');
             if (downloadBtn) downloadBtn.style.display = 'none';
             if (copyCsvBtn) copyCsvBtn.style.display = 'none';
             if (alerts) alerts.innerHTML = '';
+            if (rowCount) rowCount.textContent = '';
+            if (colCount) colCount.textContent = '';
         });
     }
     
@@ -486,7 +513,17 @@ function escapeHtml(text) {
 
 // Function to generate CSV structure for multiple teams
 function generateProjectsStructure(templateData, component, label, numTeams) {
-    if (!templateData || templateData.length === 0 || !component || !label || !numTeams) return [];
+    console.log('generateProjectsStructure called with:', {
+        templateDataLength: templateData ? templateData.length : 0,
+        component: component,
+        label: label,
+        numTeams: numTeams
+    });
+    
+    if (!templateData || templateData.length === 0 || !component || !numTeams) {
+        console.log('generateProjectsStructure: Early return - missing required parameters');
+        return [];
+    }
     
     const result = [];
     
@@ -534,13 +571,55 @@ function generateProjectsStructure(templateData, component, label, numTeams) {
                 teamComponent
             ]);
             
-            // Add Stories for this Epic
+            // Add Stories/Tasks for this Epic
             stories.forEach(story => {
+                // Determine Issue Type: Task for Automation Quality and AI implementation, Story otherwise
+                // Check Epic Link (epicNameWithTeam) for these phrases - even if there are other words/symbols
+                const epicLinkText = (epicNameWithTeam || '').toLowerCase();
+                
+                // Use regex to find phrases - words can be separated by any characters
+                // Matches "automation quality", "automation-quality", "automation_quality", "automation quality assurance", etc.
+                const automationQualityPattern = /automation.*quality/i;
+                // Matches "ai implementation", "ai-implementation", "ai_implementation", "ai implementation for", etc.
+                const aiImplementationPattern = /ai.*implementation/i;
+                
+                // Check in Epic Link
+                const isAutomationQuality = automationQualityPattern.test(epicLinkText);
+                const isAIImplementation = aiImplementationPattern.test(epicLinkText);
+                
+                const issueType = (isAutomationQuality || isAIImplementation) ? 'Task' : 'Story';
+                
+                // Generate Label for Stories/Tasks based on Sprint column: "Sprint_N" where N is the Sprint value
+                // If Sprint column contains just a number (e.g., "1"), generate "Sprint_1"
+                // If Sprint already contains "Sprint_", use it as is, otherwise add "Sprint_" prefix
+                let sprintValue = story.sprint ? story.sprint.trim() : '';
+                let sprintLabel = '';
+                
+                if (sprintValue) {
+                    // If sprint value already starts with "Sprint_", use it as is
+                    if (sprintValue.toLowerCase().startsWith('sprint_')) {
+                        sprintLabel = sprintValue;
+                    } else {
+                        // Otherwise, add "Sprint_" prefix
+                        sprintLabel = `Sprint_${sprintValue}`;
+                    }
+                }
+                
+                // Debug: log first story to see sprint value
+                if (story === stories[0] && epicName === Object.keys(epicGroups)[0]) {
+                    console.log('First story sprint check:', {
+                        sprint: story.sprint,
+                        sprintValue: sprintValue,
+                        sprintLabel: sprintLabel,
+                        fullStory: story
+                    });
+                }
+                
                 result.push([
-                    '', // Epic Name empty for Stories
+                    '', // Epic Name empty for Stories/Tasks
                     epicNameWithTeam, // Epic Link points to Epic Name
-                    '', // Label empty for Stories
-                    'Story',
+                    sprintLabel, // Label for Stories/Tasks: "Sprint_N" where N is from Sprint column
+                    issueType,
                     story.story || '',
                     story.description || '',
                     teamComponent
@@ -549,6 +628,7 @@ function generateProjectsStructure(templateData, component, label, numTeams) {
         });
     }
     
+    console.log('generateProjectsStructure: Generated', result.length, 'rows');
     return result;
 }
 
@@ -639,7 +719,6 @@ function displayPreview(data) {
     preview.innerHTML = html;
     
     // Update information
-    const totalRows = normalizedData.length;
     let epicCount = 0;
     let storyCount = 0;
     let taskCount = 0;
@@ -657,6 +736,19 @@ function displayPreview(data) {
     
     csvFiles = splitDataIntoFiles(normalizedData);
     const fileCount = csvFiles.length;
+    
+    // Update statistics
+    const totalRows = normalizedData.length - 1; // Exclude header
+    if (rowCount) {
+        rowCount.textContent = `📊 Total rows: ${totalRows}`;
+    }
+    if (colCount) {
+        if (fileCount > 1) {
+            colCount.textContent = `📁 Files: ${fileCount} | 🎯 Epics: ${epicCount} | 📖 Stories: ${storyCount} | ✅ Tasks: ${taskCount}`;
+        } else {
+            colCount.textContent = `🎯 Epics: ${epicCount} | 📖 Stories: ${storyCount} | ✅ Tasks: ${taskCount}`;
+        }
+    }
     
     // Show download buttons
     if (downloadBtn) downloadBtn.style.display = 'inline-block';
