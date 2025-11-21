@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>03. DevOps Task - CSV Generator</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .content {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            padding: 30px;
+        }
+        
+        .form-section {
+            background: var(--bg-instructions);
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            width: 100%;
+        }
+        
+        .form-section h2 {
+            color: var(--accent-primary);
+            margin-bottom: 20px;
+            font-size: 20px;
+            border-bottom: 2px solid var(--accent-primary);
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .form-group input[type="text"],
+        .form-group input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+            background: var(--bg-input);
+            color: var(--text-primary);
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+        
+        .paste-area {
+            background: var(--bg-input);
+            border: 2px dashed var(--accent-primary);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-primary);
+        }
+        
+        .paste-area:hover {
+            background: var(--bg-input-focus);
+            border-color: var(--accent-secondary);
+        }
+        
+        .paste-area.has-data {
+            background: var(--bg-status-success);
+            border-color: var(--text-status-success);
+            color: var(--text-status-success);
+        }
+        
+        .paste-area p {
+            color: inherit;
+            margin: 10px 0;
+        }
+        
+        .paste-area strong {
+            color: var(--accent-primary);
+        }
+        
+        .data-preview {
+            margin-top: 20px;
+            padding: 15px;
+            background: var(--bg-container);
+            border-radius: 6px;
+            border: 2px solid #10b981;
+            max-height: 400px;
+            overflow-y: auto;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        #dataPreview {
+            margin-top: 15px;
+        }
+        
+        #dataPreview h3 {
+            color: #10b981;
+            font-size: 18px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .data-preview table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        
+        .data-preview th,
+        .data-preview td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .data-preview th {
+            background: var(--bg-instructions);
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        
+        .preview-section {
+            background: var(--bg-instructions);
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            width: 100%;
+        }
+        
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .preview-header h2 {
+            color: var(--accent-primary);
+            margin: 0;
+            font-size: 1.8em;
+            transition: color 0.3s ease;
+        }
+        
+        .preview-info {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .info-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+        
+        .preview-container {
+            background: var(--bg-container);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 20px;
+            max-height: 800px;
+            overflow-y: auto;
+        }
+        
+        .preview-container table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        
+        .preview-container th,
+        .preview-container td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .preview-container th {
+            background: var(--accent-primary);
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: var(--accent-primary);
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .alert-success {
+            background: var(--bg-status-success);
+            color: var(--text-status-success);
+            border: 1px solid var(--text-status-success);
+        }
+        
+        .alert-error {
+            background: var(--bg-status-error);
+            color: var(--text-status-error);
+            border: 1px solid var(--text-status-error);
+        }
+        
+        .required {
+            color: var(--accent-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="theme-toggle-wrapper">
+        <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+            <span class="theme-icon">🌙</span>
+        </button>
+    </div>
+    
+    <div class="container">
+        <header>
+            <a href="index.html" class="back-link">← Back to Main</a>
+            <h1>📊 CSV Generator</h1>
+            <p class="subtitle">03. DevOps Task</p>
+            <p class="subtitle-small">Generate CSV files for DevOps tasks</p>
+        </header>
+        
+        <div class="content">
+            <!-- Form Section -->
+            <div class="form-section">
+                <h2>📝 Enter Data</h2>
+                
+                <div id="alerts"></div>
+                
+                <form id="devopsForm">
+                    <!-- Settings -->
+                    <div class="form-group">
+                        <label for="component-input">Component: <span class="required">*</span></label>
+                        <input type="text" id="component-input" placeholder="DevOps" value="DevOps" required>
+                        <small style="color: var(--text-muted); font-size: 0.9em;">Component name for DevOps tasks</small>
+                    </div>
+                    
+                    <!-- Excel Table Paste for Tasks -->
+                    <div class="form-group">
+                        <label>Paste table with Tasks from Excel (Ctrl+V or Cmd+V):</label>
+                        <div class="paste-area" id="pasteArea" tabindex="0" contenteditable="true" style="min-height: 150px;">
+                            <p><strong>Click here and paste the table</strong></p>
+                            <p style="font-size: 12px; color: var(--text-muted);">Expected columns: Epic, Task, Description</p>
+                        </div>
+                        <div id="dataPreview" class="hidden"></div>
+                    </div>
+                    
+                    <!-- Excel Table Paste for Emails -->
+                    <div class="form-group">
+                        <label>Paste emails from Excel (Ctrl+V or Cmd+V):</label>
+                        <div class="paste-area" id="emailPasteArea" tabindex="0" contenteditable="true" style="min-height: 100px;">
+                            <p><strong>Click here and paste emails</strong></p>
+                            <p style="font-size: 12px; color: var(--text-muted);">One email per row (or column)</p>
+                        </div>
+                        <div id="emailPreview" class="hidden"></div>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Preview Section -->
+            <div class="preview-section">
+                <div class="preview-header">
+                    <h2>✨ Data Preview</h2>
+                    <div class="preview-info">
+                        <span id="row-count" class="info-badge"></span>
+                        <span id="col-count" class="info-badge"></span>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                    <button class="btn btn-primary" id="process-btn">🔄 Process Data</button>
+                    <button class="btn btn-success" id="download-btn" style="display: none;">📥 Download CSV</button>
+                    <button class="btn btn-info" id="copy-csv-btn" style="display: none;">📋 Copy CSV</button>
+                    <button class="btn btn-secondary" id="clear-btn">Clear</button>
+                </div>
+                <div class="preview-container" id="preview">
+                    <div class="loading">Paste data from Excel to generate CSV</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>📖 How to use:</h3>
+            <ol>
+                <li><strong>Prepare Excel table</strong> with columns: Epic, Task, Description</li>
+                <li><strong>Select the table</strong> in Excel (Ctrl+A / Cmd+A for all)</li>
+                <li><strong>Copy</strong> the data (Ctrl+C / Cmd+C)</li>
+                <li><strong>Paste</strong> the tasks data in the first paste area above (Ctrl+V / Cmd+V)</li>
+                <li><strong>Prepare emails</strong> from Excel (one email per row or column)</li>
+                <li><strong>Copy emails</strong> from Excel (Ctrl+C / Cmd+C)</li>
+                <li><strong>Paste emails</strong> in the second paste area above (Ctrl+V / Cmd+V)</li>
+                <li><strong>Enter Component:</strong> E.g., "DevOps" (component name for all tasks)</li>
+                <li><strong>Click "Process Data":</strong> Generates CSV with DevOps tasks assigned to each email</li>
+                <li><strong>Auto-split:</strong> If there are more than 248 rows, data is automatically split into multiple files (Jira limitation)</li>
+                <li><strong>Export:</strong> Download CSV file(s) or copy the first file to clipboard</li>
+            </ol>
+            <p><strong>Note:</strong> For each email, all tasks will be generated. If you have 5 tasks and 3 emails, you'll get 15 rows (5 tasks × 3 emails).</p>
+        </div>
+    </div>
+
+    <script src="03-devops-task.js?v=18"></script>
+</body>
+</html>
+
