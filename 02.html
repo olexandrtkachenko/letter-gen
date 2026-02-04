@@ -59,15 +59,9 @@
         
         .content {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr;
             gap: 30px;
             padding: 30px;
-        }
-        
-        @media (max-width: 1200px) {
-            .content {
-                grid-template-columns: 1fr;
-            }
         }
         
         .form-section {
@@ -87,6 +81,17 @@
         
         .form-group {
             margin-bottom: 20px;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
         }
         
         label {
@@ -347,14 +352,83 @@
                 
                 <form id="letterForm">
                     <!-- Basic Info -->
-                    <div class="form-group">
-                        <label for="runNumber">Run Number:</label>
-                        <input type="text" id="runNumber" value="15" required>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="runNumber">Run Number:</label>
+                            <input type="text" id="runNumber" value="20" placeholder="20" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="coordinator">Run Coordinator:</label>
+                            <input type="text" id="coordinator" placeholder="Oleksandr Tkachenko3" required>
+                        </div>
                     </div>
                     
+                    <!-- Timeline dates -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="timelineStartDate">Timeline Start Date:</label>
+                            <input type="date" id="timelineStartDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="timelineEndDate">Timeline End Date:</label>
+                            <input type="date" id="timelineEndDate">
+                        </div>
+                    </div>
+                    
+                    <!-- Timeline settings -->
                     <div class="form-group">
-                        <label for="coordinator">Run Coordinator:</label>
-                        <input type="text" id="coordinator" placeholder="[Coordinator Name]" required>
+                        <label style="margin-bottom: 12px;">⚙️ Налаштування таймлайну</label>
+                        <div style="background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 15px; margin-bottom: 10px;">
+                            <div class="form-group" style="margin-bottom: 15px;">
+                                <label for="timelineHighlightSprint">Який спринт підсвітити (звітуємо за):</label>
+                                <select id="timelineHighlightSprint" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px;">
+                                    <option value="auto">Auto (поточний − 1)</option>
+                                    <option value="phase1">Phase 1 (Deep Dive)</option>
+                                    <option value="sprint0">Sprint-0</option>
+                                    <option value="sprint1">Sprint-1</option>
+                                    <option value="sprint2">Sprint-2</option>
+                                    <option value="sprint3">Sprint-3</option>
+                                    <option value="sprint4">Sprint-4</option>
+                                    <option value="sprint5">Sprint-5</option>
+                                    <option value="final">Final</option>
+                                </select>
+                            </div>
+                            <div style="font-size: 12px; color: #666; margin-bottom: 12px;">Тривалість (тижні) — можна збільшити для свят тощо:</div>
+                            <div class="form-row" style="flex-wrap: wrap;">
+                                <div class="form-group" style="flex: 0 0 auto; min-width: 70px;">
+                                    <label for="timelinePhase1Weeks" style="font-size: 12px;">Phase 1</label>
+                                    <input type="number" id="timelinePhase1Weeks" min="2" max="5" value="3" style="width: 60px; padding: 8px;">
+                                </div>
+                                <div class="form-group" style="flex: 0 0 auto; min-width: 60px;">
+                                    <label for="timelineSprint0Weeks" style="font-size: 12px;">S-0</label>
+                                    <input type="number" id="timelineSprint0Weeks" min="1" max="2" value="1" style="width: 50px; padding: 8px;">
+                                </div>
+                                <div class="form-group" style="flex: 0 0 auto; min-width: 60px;">
+                                    <label for="timelineSprint1Weeks" style="font-size: 12px;">S-1</label>
+                                    <input type="number" id="timelineSprint1Weeks" min="1" max="4" value="2" style="width: 50px; padding: 8px;">
+                                </div>
+                                <div class="form-group" style="flex: 0 0 auto; min-width: 60px;">
+                                    <label for="timelineSprint2Weeks" style="font-size: 12px;">S-2</label>
+                                    <input type="number" id="timelineSprint2Weeks" min="1" max="4" value="2" style="width: 50px; padding: 8px;">
+                                </div>
+                                <div class="form-group" style="flex: 0 0 auto; min-width: 60px;">
+                                    <label for="timelineSprint3Weeks" style="font-size: 12px;">S-3</label>
+                                    <input type="number" id="timelineSprint3Weeks" min="1" max="4" value="2" style="width: 50px; padding: 8px;">
+                                </div>
+                                <div class="form-group" style="flex: 0 0 auto; min-width: 60px;">
+                                    <label for="timelineSprint4Weeks" style="font-size: 12px;">S-4</label>
+                                    <input type="number" id="timelineSprint4Weeks" min="1" max="4" value="2" style="width: 50px; padding: 8px;">
+                                </div>
+                                <div class="form-group" style="flex: 0 0 auto; min-width: 60px;">
+                                    <label for="timelineSprint5Weeks" style="font-size: 12px;">S-5</label>
+                                    <input type="number" id="timelineSprint5Weeks" min="1" max="4" value="2" style="width: 50px; padding: 8px;">
+                                </div>
+                                <div class="form-group" style="flex: 0 0 auto; min-width: 60px;">
+                                    <label for="timelineFinalWeeks" style="font-size: 12px;">Final</label>
+                                    <input type="number" id="timelineFinalWeeks" min="0" max="2" value="0" style="width: 50px; padding: 8px;">
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                     <!-- Excel Table Paste -->
@@ -366,17 +440,6 @@
                         </div>
                         <div id="dataPreview" class="hidden"></div>
                         <div id="statsPreview" class="hidden"></div>
-                    </div>
-                    
-                    <!-- Timeline dates -->
-                    <div class="form-group">
-                        <label for="timelineStartDate">Timeline Start Date:</label>
-                        <input type="date" id="timelineStartDate" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="timelineEndDate">Timeline End Date:</label>
-                        <input type="date" id="timelineEndDate">
                     </div>
                     
                     <!-- Highlight -->
@@ -394,6 +457,7 @@
                     <button class="btn btn-primary" id="generateBtn" onclick="generateLetter()">🔄 Update Preview</button>
                     <button class="btn btn-success" id="copyBtn" onclick="copyHTML()">📋 Copy HTML</button>
                     <button class="btn btn-secondary" id="downloadBtn" onclick="downloadHTML()">💾 Download HTML</button>
+                    <button class="btn btn-secondary" id="downloadEmltplBtn" onclick="downloadEMLTPL()">📧 Download EMLTPL</button>
                     <button class="btn" style="background: #f59e0b; color: white; border: none;" onclick="window.open('09.html', '_blank')">📖 Instructions</button>
                 </div>
                 <div class="preview-container" id="preview">
@@ -757,61 +821,24 @@
                 }
                 stats.regions[region].locations[location]++;
                 
-                // Count by skills (from role)
+                // Count by skills: first word = skill, in parentheses = sub-direction (e.g. AT (JS) → skill AT, sub JS)
                 const role = (row.role && row.role.trim()) ? row.role.trim() : 'Unknown';
-                const skill = extractSkill(role);
+                const skillKey = getSkillKey(role);
                 
-                if (!stats.skills[skill]) {
-                    stats.skills[skill] = 0;
+                if (!stats.skills[skillKey]) {
+                    stats.skills[skillKey] = { total: 0, roles: {} };
                 }
-                stats.skills[skill]++;
+                stats.skills[skillKey].total++;
+                stats.skills[skillKey].roles[role] = (stats.skills[skillKey].roles[role] || 0) + 1;
             });
         }
         
-        function extractSkill(role) {
-            const roleLower = role.toLowerCase();
-            
-            // IMPORTANT: Check for Automation Testing/QA FIRST, before checking for other skills
-            // This includes AT Java, AT .Net, AT JS - all should be counted as AQA
-            if (roleLower.includes('automation') || 
-                roleLower.includes('at js') || 
-                roleLower.includes('at-js') ||
-                roleLower.includes('at_js') ||
-                roleLower.includes('at java') ||
-                roleLower.includes('at-java') ||
-                roleLower.includes('at_java') ||
-                roleLower.includes('at .net') ||
-                roleLower.includes('at-.net') ||
-                roleLower.includes('at_.net') ||
-                roleLower.includes('at c#') ||
-                roleLower.includes('at-c#') ||
-                roleLower.includes('at_c#') ||
-                (roleLower.includes('at') && (roleLower.includes('test') || roleLower.includes('qa'))) ||
-                roleLower.includes('aqa') ||
-                (roleLower.includes('qa') && (roleLower.includes('js') || roleLower.includes('javascript'))) ||
-                (roleLower.includes('test') && (roleLower.includes('automation') || roleLower.includes('js') || roleLower.includes('javascript')))) {
-                return 'AQA';
-            }
-            
-            // Map common role patterns to skills
-            if (roleLower.includes('java') && !roleLower.includes('javascript')) {
-                return 'Java';
-            } else if (roleLower.includes('.net') || roleLower.includes('c#')) {
-                return '.NET';
-            } else if (roleLower.includes('python')) {
-                return 'Python';
-            } else if (roleLower.includes('javascript') || roleLower.includes('js') || roleLower.includes('node')) {
-                return 'JavaScript';
-            } else if (roleLower.includes('react') || roleLower.includes('frontend')) {
-                return 'JavaScript';
-            } else if (roleLower.includes('angular')) {
-                return 'JavaScript';
-            } else if (roleLower.includes('vue')) {
-                return 'JavaScript';
-            } else {
-                // Try to extract skill from role name
-                return role || 'Other';
-            }
+        /** Skill = first word; in parentheses = sub-direction. E.g. "AT (JS)" → AT, "JS (React)" → JS. */
+        function getSkillKey(role) {
+            const trimmed = (role || '').trim();
+            if (!trimmed) return 'Unknown';
+            const firstWord = trimmed.split(/\s+/)[0];
+            return firstWord || trimmed;
         }
         
         function updateDataPreview() {
@@ -907,8 +934,13 @@
             
             if (stats.skills && Object.keys(stats.skills).length > 0) {
                 html += '<h3 style="margin-top: 15px;">By Skills:</h3><ul>';
-                Object.keys(stats.skills).sort().forEach(skill => {
-                    html += `<li><strong>${escapeHtml(skill)}:</strong> ${stats.skills[skill]}</li>`;
+                Object.keys(stats.skills).sort().forEach(skillKey => {
+                    const skillData = stats.skills[skillKey];
+                    const total = skillData.total;
+                    const rolesStr = Object.keys(skillData.roles).map(r =>
+                        `${escapeHtml(r)} (${skillData.roles[r]})`
+                    ).join(' • ');
+                    html += `<li><strong>${escapeHtml(skillKey)}:</strong> ${total} — ${rolesStr}</li>`;
                 });
                 html += '</ul>';
             }
@@ -1034,91 +1066,23 @@
             // For now, I'll create a simplified version that matches the structure
             // We'll need to read the actual template and inject the data
             
-            // Group regions by standard region codes
-            const regionMapping = {
-                'WCE': ['Uzbekistan', 'Kyrgyzstan', 'Kazakhstan'],
-                'UA': ['Ukraine'],
-                'CEE': ['Poland', 'Serbia', 'Hungary', 'Romania', 'Czech Republic'],
-                'LatAm': ['Mexico', 'Brazil', 'Argentina', 'Colombia']
-            };
-            
-            const groupedRegions = {
-                'WCE': { total: 0, locations: {} },
-                'UA': { total: 0, locations: {} },
-                'CEE': { total: 0, locations: {} },
-                'LatAm': { total: 0, locations: {} }
-            };
-            
-            // Group data by regions - use Region column directly
+            // Use Region column as-is: each region with its locations (countries) and counts
             if (!stats.regions || Object.keys(stats.regions).length === 0) {
                 console.error('stats.regions is empty!');
                 return '<p>Error: No region data</p>';
             }
             
-            Object.keys(stats.regions).forEach(region => {
-                // Normalize region name
-                const regionUpper = region.toUpperCase().trim();
-                let mappedRegion = null;
-                
-                // Check if region matches standard codes
-                if (['WCE', 'UA', 'CEE', 'LATAM'].includes(regionUpper)) {
-                    mappedRegion = regionUpper === 'LATAM' ? 'LatAm' : regionUpper;
-                } else {
-                    // Try to match by name or location
-                    for (const [code, countries] of Object.entries(regionMapping)) {
-                        if (countries.some(c => regionUpper.includes(c.toUpperCase()) || c.toUpperCase().includes(regionUpper))) {
-                            mappedRegion = code;
-                            break;
-                        }
-                    }
-                    
-                    // If still not found, try to match by location
-                    if (!mappedRegion) {
-                        const locations = Object.keys(stats.regions[region].locations);
-                        for (const [code, countries] of Object.entries(regionMapping)) {
-                            if (locations.some(loc => countries.some(c => loc.toUpperCase().includes(c.toUpperCase()) || c.toUpperCase().includes(loc.toUpperCase())))) {
-                                mappedRegion = code;
-                                break;
-                            }
-                        }
-                    }
-                }
-                
-                if (mappedRegion && groupedRegions[mappedRegion]) {
-                    groupedRegions[mappedRegion].total += stats.regions[region].total;
-                    Object.keys(stats.regions[region].locations).forEach(loc => {
-                        if (!groupedRegions[mappedRegion].locations[loc]) {
-                            groupedRegions[mappedRegion].locations[loc] = 0;
-                        }
-                        groupedRegions[mappedRegion].locations[loc] += stats.regions[region].locations[loc];
-                    });
-                } else {
-                    // If region doesn't match, create a custom entry
-                    if (!groupedRegions[region]) {
-                        groupedRegions[region] = { total: 0, locations: {} };
-                    }
-                    groupedRegions[region].total += stats.regions[region].total;
-                    Object.keys(stats.regions[region].locations).forEach(loc => {
-                        if (!groupedRegions[region].locations[loc]) {
-                            groupedRegions[region].locations[loc] = 0;
-                        }
-                        groupedRegions[region].locations[loc] += stats.regions[region].locations[loc];
-                    });
-                }
-            });
-            
-            // Filter out empty regions
             const filteredRegions = {};
-            Object.keys(groupedRegions).forEach(code => {
-                if (groupedRegions[code].total > 0) {
-                    filteredRegions[code] = groupedRegions[code];
+            Object.keys(stats.regions).forEach(region => {
+                if (stats.regions[region].total > 0) {
+                    filteredRegions[region] = stats.regions[region];
                 }
             });
             
-            // Sort skills by count
+            // Sort skills by total count; each skill has { total, roles: { roleName: count } }
             const sortedSkills = Object.keys(stats.skills || {})
-                .map(skill => ({ name: skill, count: stats.skills[skill] }))
-                .sort((a, b) => b.count - a.count);
+                .map(key => ({ name: key, total: stats.skills[key].total, roles: stats.skills[key].roles }))
+                .sort((a, b) => b.total - a.total);
             
             console.log('generateEmailHTML - final totalStudents:', stats.totalStudents);
             console.log('generateEmailHTML - filteredRegions:', Object.keys(filteredRegions));
@@ -1134,139 +1098,142 @@
                 return '<p style="margin: 0; color: #666666; font-size: 14px; font-style: italic; font-family: Arial, sans-serif;">[Enter start and end dates to generate timeline]</p>';
             }
             
+            const getNum = (id, def) => {
+                const el = document.getElementById(id);
+                const v = el ? parseInt(el.value, 10) : def;
+                return isNaN(v) ? def : v;
+            };
+            const phase1Weeks = getNum('timelinePhase1Weeks', 3);
+            const segmentWeeks = [
+                getNum('timelineSprint0Weeks', 1),
+                getNum('timelineSprint1Weeks', 2),
+                getNum('timelineSprint2Weeks', 2),
+                getNum('timelineSprint3Weeks', 2),
+                getNum('timelineSprint4Weeks', 2),
+                getNum('timelineSprint5Weeks', 2)
+            ];
+            const finalWeeks = getNum('timelineFinalWeeks', 0);
+            const totalWeeks = phase1Weeks + segmentWeeks.reduce((a, b) => a + b, 0) + (finalWeeks > 0 ? finalWeeks : 0);
+            
             const startDate = new Date(startDateStr);
-            const endDate = new Date(endDateStr);
             const today = new Date();
-            today.setHours(0, 0, 0, 0); // Reset time to compare dates only
+            today.setHours(0, 0, 0, 0);
             
             const weeks = [];
-            const currentDate = new Date(startDate);
-            
-            // Generate 15 weeks
-            for (let i = 0; i < 15; i++) {
-                const weekDate = new Date(currentDate);
-                weekDate.setDate(currentDate.getDate() + (i * 7));
-                weeks.push(weekDate);
+            for (let i = 0; i < totalWeeks; i++) {
+                const w = new Date(startDate);
+                w.setDate(startDate.getDate() + i * 7);
+                weeks.push(w);
             }
             
-            // Find current week
             let currentWeekIndex = -1;
             for (let i = 0; i < weeks.length; i++) {
                 const weekStart = new Date(weeks[i]);
                 weekStart.setHours(0, 0, 0, 0);
                 const weekEnd = new Date(weekStart);
                 weekEnd.setDate(weekStart.getDate() + 6);
-                
                 if (today >= weekStart && today <= weekEnd) {
                     currentWeekIndex = i;
                     break;
                 }
             }
-            
-            // If today is before start or after end, don't highlight
             const firstWeekStart = new Date(weeks[0]);
             firstWeekStart.setHours(0, 0, 0, 0);
             const lastWeekEnd = new Date(weeks[weeks.length - 1]);
             lastWeekEnd.setDate(lastWeekEnd.getDate() + 6);
             lastWeekEnd.setHours(23, 59, 59, 999);
+            if (today < firstWeekStart || today > lastWeekEnd) currentWeekIndex = -1;
             
-            if (today < firstWeekStart || today > lastWeekEnd) {
-                currentWeekIndex = -1;
+            const segLengths = [phase1Weeks, ...segmentWeeks];
+            if (finalWeeks > 0) segLengths.push(finalWeeks);
+            let currentSegmentIndex = -1;
+            let weekIdx = 0;
+            for (let s = 0; s < segLengths.length; s++) {
+                if (currentWeekIndex >= weekIdx && currentWeekIndex < weekIdx + segLengths[s]) {
+                    currentSegmentIndex = s;
+                    break;
+                }
+                weekIdx += segLengths[s];
             }
             
-            // Group weeks by month
-            const monthGroups = {};
+            const highlightSelect = document.getElementById('timelineHighlightSprint');
+            const manualVal = highlightSelect ? highlightSelect.value : 'auto';
+            const manualMap = { phase1: 0, sprint0: 1, sprint1: 2, sprint2: 3, sprint3: 4, sprint4: 5, sprint5: 6, final: 7 };
+            const highlightSegmentIndex = manualVal === 'auto'
+                ? (currentSegmentIndex <= 0 ? -1 : currentSegmentIndex - 1)
+                : (manualMap[manualVal] !== undefined ? manualMap[manualVal] : -1);
+            
             const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
                 'July', 'August', 'September', 'October', 'November', 'December'];
-            const monthNamesShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            
-            weeks.forEach((week, index) => {
-                const month = monthNames[week.getMonth()];
-                if (!monthGroups[month]) {
-                    monthGroups[month] = [];
-                }
-                monthGroups[month].push({ week: index + 1, date: week });
+            const monthGroups = {};
+            weeks.forEach((week, i) => {
+                const m = monthNames[week.getMonth()];
+                if (!monthGroups[m]) monthGroups[m] = [];
+                monthGroups[m].push(i);
             });
             
-            // Generate month header row
             let monthHeaderHTML = '<tr>';
-            const monthOrder = Object.keys(monthGroups);
-            monthOrder.forEach((month, index) => {
+            Object.keys(monthGroups).forEach((month, idx, arr) => {
                 const colspan = monthGroups[month].length;
-                const isLast = index === monthOrder.length - 1;
+                const isLast = idx === arr.length - 1;
                 monthHeaderHTML += `<td colspan="${colspan}" style="background: linear-gradient(to bottom, #8b5cf6 0%, #a78bfa 100%); background-color: #8b5cf6; color: #ffffff; font-size: 10px; font-weight: bold; font-family: Arial, sans-serif; text-align: center; padding: 5px 2px; ${!isLast ? 'border-right: 1px solid #d8b4fe;' : ''} border-bottom: 1px solid #d8b4fe;">${month}</td>`;
             });
             monthHeaderHTML += '</tr>';
             
-            // Generate week header row
+            // Which segment each week belongs to (for highlighting weeks under the reporting sprint)
+            const getSegmentForWeek = (weekIndex) => {
+                let idx = 0;
+                for (let s = 0; s < segLengths.length; s++) {
+                    if (weekIndex < idx + segLengths[s]) return s;
+                    idx += segLengths[s];
+                }
+                return 0;
+            };
+            
             let weekHeaderHTML = '<tr>';
             weeks.forEach((week, index) => {
                 const isLast = index === weeks.length - 1;
-                const day = week.getDate();
-                const monthShort = monthNamesShort[week.getMonth()];
-                const isCurrentWeek = index === currentWeekIndex;
-                
-                // Highlight current week with bright yellow/orange border and background
-                const weekStyle = isCurrentWeek 
-                    ? `background: linear-gradient(to bottom, #fef3c7 0%, #fde68a 100%); background-color: #fef3c7; border: 3px solid #f59e0b; font-weight: bold;`
+                const day = String(week.getDate()).padStart(2, '0');
+                const month = String(week.getMonth() + 1).padStart(2, '0');
+                const segmentOfWeek = getSegmentForWeek(index);
+                const isInHighlightedSprint = highlightSegmentIndex >= 0 && segmentOfWeek === highlightSegmentIndex;
+                const weekStyle = isInHighlightedSprint
+                    ? `background: linear-gradient(to bottom, #fef3c7 0%, #fde68a 100%); background-color: #fef3c7; font-weight: bold;`
                     : `background: linear-gradient(to bottom, #f3e8ff 0%, #faf5ff 100%); background-color: #f3e8ff;`;
-                
-                weekHeaderHTML += `<td style="${weekStyle} color: ${isCurrentWeek ? '#92400e' : '#333333'}; font-size: 9px; font-weight: bold; font-family: Arial, sans-serif; text-align: center; padding: 4px 2px; ${!isLast ? 'border-right: 1px solid #d8b4fe;' : ''} border-bottom: 1px solid #d8b4fe;">W${index + 1}<br>${day}-${monthShort}${isCurrentWeek ? '<br><span style="font-size: 11px; font-weight: bold; color: #f59e0b; background-color: #ffffff; padding: 2px 5px; display: inline-block; margin-top: 2px; border: 1px solid #f59e0b;">● NOW</span>' : ''}</td>`;
+                weekHeaderHTML += `<td style="${weekStyle} color: ${isInHighlightedSprint ? '#92400e' : '#333333'}; font-size: 9px; font-weight: bold; font-family: Arial, sans-serif; text-align: center; padding: 4px 2px; ${!isLast ? 'border-right: 1px solid #d8b4fe;' : ''} border-bottom: 1px solid #d8b4fe;">W${index + 1}<br>${day}.${month}</td>`;
             });
             weekHeaderHTML += '</tr>';
             
+            const neutralStyle = 'background: #e5e7eb; color: #4b5563; font-size: 9px; font-weight: 600; font-family: Arial, sans-serif; text-align: center; padding: 6px 2px; border-right: 1px solid #d1d5db; border-bottom: 1px solid #d1d5db;';
+            const segmentLabels = [
+                '+ Soft skill, Scrum, Jira and other trainings',
+                'Sprint-0', 'Sprint-1', 'Sprint-2', 'Sprint-3', 'Sprint-4', 'Sprint-5'
+            ];
+            if (finalWeeks > 0) segmentLabels.push('Final');
+            const highlightStyle = 'background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); background-color: #fef3c7; color: #92400e; font-size: 9px; font-weight: 700; font-family: Arial, sans-serif; text-align: center; padding: 6px 2px;';
+            
+            let sprintRowHTML = '<tr>';
+            segLengths.forEach((colspan, segIdx) => {
+                const isLast = segIdx === segLengths.length - 1;
+                const isHighlight = segIdx === highlightSegmentIndex;
+                const borderPart = isLast ? 'border-bottom: 1px solid #d8b4fe;' : 'border-right: 1px solid #d8b4fe; border-bottom: 1px solid #d8b4fe;';
+                const cellStyle = isHighlight
+                    ? highlightStyle + borderPart
+                    : neutralStyle + (isLast ? '' : 'border-right: 1px solid #d1d5db; ') + 'border-bottom: 1px solid #d1d5db;';
+                sprintRowHTML += `<td colspan="${colspan}" style="${cellStyle}">${segmentLabels[segIdx]}</td>`;
+            });
+            sprintRowHTML += '</tr>';
+            
+            const projectPartColspan = totalWeeks - phase1Weeks;
             return `
                 <table cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #ffffff; border: 1px solid #e0e0e0;">
                     ${monthHeaderHTML}
                     ${weekHeaderHTML}
-                    <!-- Deep Dive / Project Participation Row -->
                     <tr>
-                        <!-- Deep Dive: AWS Sandbox Course (orange gradient) - Weeks 1-3 (3 weeks) -->
-                        <td colspan="3" style="background: linear-gradient(135deg, #f97316 0%, #fb923c 100%); background-color: #f97316; color: #ffffff; font-size: 9px; font-weight: bold; font-family: Arial, sans-serif; text-align: center; padding: 6px 2px; border-right: 1px solid #d8b4fe; border-bottom: 1px solid #d8b4fe;">
-                            Deep Dive: AWS Sandbox Course
-                        </td>
-                        <!-- Project Participation (purple gradient) - Weeks 4-15 (12 weeks, including Final) -->
-                        <td colspan="12" style="background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%); background-color: #8b5cf6; color: #ffffff; font-size: 9px; font-weight: bold; font-family: Arial, sans-serif; text-align: center; padding: 6px 2px; border-bottom: 1px solid #d8b4fe;">
-                            Project Participation
-                        </td>
+                        <td colspan="${phase1Weeks}" bgcolor="#f97316" style="background-color: #f97316 !important; color: #ffffff; font-size: 9px; font-weight: bold; font-family: Arial, sans-serif; text-align: center; padding: 6px 2px; border-right: 1px solid #d8b4fe; border-bottom: 1px solid #d8b4fe;"><table cellspacing="0" cellpadding="0" border="0" width="100%" bgcolor="#f97316"><tr><td bgcolor="#f97316" style="background-color: #f97316 !important; color: #ffffff; font-size: 9px; font-weight: bold; font-family: Arial, sans-serif; text-align: center; padding: 6px 2px;">Deep Dive: AWS Sandbox Course</td></tr></table></td>
+                        <td colspan="${projectPartColspan}" bgcolor="#8b5cf6" style="background-color: #8b5cf6 !important; color: #ffffff; font-size: 9px; font-weight: bold; font-family: Arial, sans-serif; text-align: center; padding: 6px 2px; border-bottom: 1px solid #d8b4fe;"><table cellspacing="0" cellpadding="0" border="0" width="100%" bgcolor="#8b5cf6"><tr><td bgcolor="#8b5cf6" style="background-color: #8b5cf6 !important; color: #ffffff; font-size: 9px; font-weight: bold; font-family: Arial, sans-serif; text-align: center; padding: 6px 2px;">Project Participation</td></tr></table></td>
                     </tr>
-                    
-                    <!-- Trainings / Sprints Row -->
-                    <tr>
-                        <!-- Soft skill trainings (blue) - Weeks 1-3 (3 weeks) -->
-                        <td colspan="3" style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); background-color: #dbeafe; color: #1e40af; font-size: 9px; font-weight: 600; font-family: Arial, sans-serif; text-align: center; padding: 6px 2px; border-right: 1px solid #d8b4fe; border-bottom: 1px solid #d8b4fe;">
-                            + Soft skill, Scrum, Jira and other trainings
-                        </td>
-                        <!-- Sprint-0 (green) - Week 4 (1 week) -->
-                        <td style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); background-color: #d1fae5; color: #065f46; font-size: 9px; font-weight: 600; font-family: Arial, sans-serif; text-align: center; padding: 6px 2px; border-right: 1px solid #d8b4fe; border-bottom: 1px solid #d8b4fe;">
-                            Sprint-0
-                        </td>
-                        <!-- Sprint-1 (yellow) - Weeks 5-6 (2 weeks) -->
-                        <td colspan="2" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); background-color: #fef3c7; color: #92400e; font-size: 9px; font-weight: 600; font-family: Arial, sans-serif; text-align: center; padding: 6px 2px; border-right: 1px solid #d8b4fe; border-bottom: 1px solid #d8b4fe;">
-                            Sprint-1
-                        </td>
-                        <!-- Sprint-2 (orange) - Weeks 7-8 (2 weeks) -->
-                        <td colspan="2" style="background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%); background-color: #fed7aa; color: #9a3412; font-size: 9px; font-weight: 600; font-family: Arial, sans-serif; text-align: center; padding: 6px 2px; border-right: 1px solid #d8b4fe; border-bottom: 1px solid #d8b4fe;">
-                            Sprint-2
-                        </td>
-                        <!-- Sprint-3 (red) - Weeks 9-10 (2 weeks) -->
-                        <td colspan="2" style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); background-color: #fee2e2; color: #991b1b; font-size: 9px; font-weight: 600; font-family: Arial, sans-serif; text-align: center; padding: 6px 2px; border-right: 1px solid #d8b4fe; border-bottom: 1px solid #d8b4fe;">
-                            Sprint-3
-                        </td>
-                        <!-- Sprint-4 (purple) - Weeks 11-12 (2 weeks) -->
-                        <td colspan="2" style="background: linear-gradient(135deg, #e9d5ff 0%, #ddd6fe 100%); background-color: #e9d5ff; color: #6b21a8; font-size: 9px; font-weight: 600; font-family: Arial, sans-serif; text-align: center; padding: 6px 2px; border-right: 1px solid #d8b4fe; border-bottom: 1px solid #d8b4fe;">
-                            Sprint-4
-                        </td>
-                        <!-- Sprint-5 (teal) - Weeks 13-14 (2 weeks) -->
-                        <td colspan="2" style="background: linear-gradient(135deg, #ccfbf1 0%, #99f6e4 100%); background-color: #ccfbf1; color: #134e4a; font-size: 9px; font-weight: 600; font-family: Arial, sans-serif; text-align: center; padding: 6px 2px; border-right: 1px solid #d8b4fe; border-bottom: 1px solid #d8b4fe;">
-                            Sprint-5
-                        </td>
-                        <!-- Final (indigo) - Week 15 (1 week) -->
-                        <td style="background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); background-color: #e0e7ff; color: #3730a3; font-size: 9px; font-weight: 600; font-family: Arial, sans-serif; text-align: center; padding: 6px 2px; border-bottom: 1px solid #d8b4fe;">
-                            Final
-                        </td>
-                    </tr>
+                    ${sprintRowHTML}
                 </table>`;
         }
         
@@ -1276,26 +1243,22 @@
             // For now, creating a simplified version
             
             let regionsHTML = '';
-            // Sort regions: standard ones first, then custom
-            const regionOrder = ['WCE', 'UA', 'CEE', 'LatAm'];
-            const customRegions = Object.keys(regions).filter(r => !regionOrder.includes(r));
-            const allRegions = [...regionOrder, ...customRegions];
+            const regionColors = [
+                { bg: '#fef3c7', border: '#f59e0b', text: '#92400e', num: '#f59e0b' },
+                { bg: '#dbeafe', border: '#3b82f6', text: '#1e40af', num: '#3b82f6' },
+                { bg: '#d1fae5', border: '#10b981', text: '#065f46', num: '#10b981' },
+                { bg: '#fce7f3', border: '#ec4899', text: '#831843', num: '#ec4899' },
+                { bg: '#f0f0f0', border: '#999999', text: '#333333', num: '#666666' }
+            ];
+            const allRegions = Object.keys(regions).sort();
             
-            allRegions.forEach(code => {
+            allRegions.forEach((code, index) => {
                 if (regions[code] && regions[code].total > 0) {
                     const region = regions[code];
                     const locations = Object.keys(region.locations).map(loc => 
                         `${loc} (${region.locations[loc]})`
                     ).join(' • ');
-                    
-                    const regionColors = {
-                        'WCE': { bg: '#fef3c7', border: '#f59e0b', text: '#92400e', num: '#f59e0b' },
-                        'UA': { bg: '#dbeafe', border: '#3b82f6', text: '#1e40af', num: '#3b82f6' },
-                        'CEE': { bg: '#d1fae5', border: '#10b981', text: '#065f46', num: '#10b981' },
-                        'LatAm': { bg: '#fce7f3', border: '#ec4899', text: '#831843', num: '#ec4899' }
-                    };
-                    
-                    const colors = regionColors[code] || { bg: '#f0f0f0', border: '#999999', text: '#333333', num: '#666666' };
+                    const colors = regionColors[index % regionColors.length];
                     
                     regionsHTML += `
                         <tr>
@@ -1330,13 +1293,17 @@
             skills.forEach((skill, index) => {
                 const colors = skillColors[index % skillColors.length];
                 const isLast = index === skills.length - 1;
+                const rolesStr = Object.keys(skill.roles || {}).map(r =>
+                    `${escapeHtml(r)} (${skill.roles[r]})`
+                ).join(' • ');
                 skillsHTML += `
                     <tr>
-                        <td style="padding: 8px 12px; ${!isLast ? 'border-bottom: 1px solid #e0e0e0;' : ''} background: linear-gradient(to right, ${colors.bg} 0%, #ffffff 100%); background-color: ${colors.bg}; border-left: 3px solid ${colors.border};">
+                        <td style="padding: 10px 12px; ${!isLast ? 'border-bottom: 1px solid #e0e0e0;' : ''} background: linear-gradient(to right, ${colors.bg} 0%, #ffffff 100%); background-color: ${colors.bg}; border-left: 3px solid ${colors.border};">
                             <table cellspacing="0" cellpadding="0" border="0" width="100%">
                                 <tr>
-                                    <td style="color: ${colors.text}; font-size: 14px; font-weight: bold; font-family: Arial, sans-serif;">${skill.name}</td>
-                                    <td align="right" style="color: ${colors.num}; font-size: 14px; font-weight: bold; font-family: Arial, sans-serif;">${skill.count}</td>
+                                    <td style="color: ${colors.text}; font-size: 15px; font-weight: bold; font-family: Arial, sans-serif; width: 20%;">${escapeHtml(skill.name)}</td>
+                                    <td style="color: ${colors.num}; font-size: 18px; font-weight: bold; font-family: Arial, sans-serif; text-align: right; width: 15%;">${skill.total}</td>
+                                    <td style="color: ${colors.text}; font-size: 13px; font-family: Arial, sans-serif; padding-left: 12px;">${rolesStr}</td>
                                 </tr>
                             </table>
                         </td>
@@ -1395,7 +1362,7 @@
                     <tr>
                         <td style="padding: 0 40px 20px 40px;">
                             <p style="margin: 0; color: #333333; font-size: 16px; line-height: 1.6; font-family: Arial, sans-serif;">
-                                This is a status for <strong>X-Stack Project Education Course – Run #${runNumber}</strong>.
+                                This is a status update for <strong>X-Stack Project Education Course – Run #${runNumber}</strong>.
                             </p>
                         </td>
                     </tr>
@@ -1568,6 +1535,39 @@
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
             showAlert('✅ File downloaded!', 'success');
+        }
+        
+        function downloadEMLTPL() {
+            const htmlCode = document.getElementById('htmlCode').value;
+            if (!htmlCode) {
+                showAlert('Please generate the letter first', 'error');
+                return;
+            }
+            const runNumber = document.getElementById('runNumber').value;
+            const today = new Date();
+            const day = String(today.getDate()).padStart(2, '0');
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const month = monthNames[today.getMonth()];
+            const year = today.getFullYear();
+            const subject = `[GPE] Run#${runNumber} - Status Update - ${day}-${month}-${year}`;
+            const emltpl = [
+                'MIME-Version: 1.0',
+                'Content-Type: text/html; charset=UTF-8',
+                'Subject: ' + subject,
+                'X-Uniform-Type-Identifier: com.apple.mail.eml',
+                '',
+                htmlCode
+            ].join('\r\n');
+            const blob = new Blob([emltpl], { type: 'message/rfc822' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `X-Stack_Run_${runNumber}_Status.emltpl`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showAlert('✅ EMLTPL template downloaded!', 'success');
         }
         
         // Auto-update on form changes - but only if we have data

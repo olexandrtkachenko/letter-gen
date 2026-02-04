@@ -59,15 +59,9 @@
         
         .content {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr;
             gap: 30px;
             padding: 30px;
-        }
-        
-        @media (max-width: 1200px) {
-            .content {
-                grid-template-columns: 1fr;
-            }
         }
         
         .form-section {
@@ -214,10 +208,17 @@
                     <button class="btn btn-primary" onclick="updatePreview()">🔄 Update Preview</button>
                     <button class="btn btn-success" onclick="copyRunCompletionHTML()">📋 Copy HTML</button>
                     <button class="btn btn-secondary" onclick="downloadRunCompletionHTML()">💾 Download HTML</button>
+                    <button class="btn btn-secondary" onclick="downloadRunCompletionEMLTPL()">📧 Download EMLTPL</button>
                     <button class="btn" style="background: #f59e0b; color: white; border: none;" onclick="window.open('09.html', '_blank')">📖 Instructions</button>
                 </div>
-                <iframe id="preview" src="about:blank"></iframe>
+                <div style="background: white; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden;">
+                    <iframe id="preview" src="about:blank" style="width: 100%; height: 750px; border: none;"></iframe>
+                </div>
             </div>
+        </div>
+        
+        <div id="htmlOutput" style="display: none;">
+            <textarea id="htmlCode" readonly></textarea>
         </div>
         
         <div style="text-align: center; padding: 20px; background: #f8f9fa; border-top: 1px solid #e0e0e0; color: #666; font-size: 12px;">
@@ -226,10 +227,16 @@
     </div>
     
     <script>
-        function generateRunCompletionHTML() {
+        function generateRunCompletionHTML(forEmail) {
             const runNumber = document.getElementById('runNumber').value || '12';
             const studentsCount = document.getElementById('studentsCount').value || '46';
             const videoLink = document.getElementById('videoLink').value || '[LINK]';
+            const headerBg = forEmail
+                ? 'background-color: #667eea; background: #667eea;'
+                : 'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);';
+            const footerBg = forEmail
+                ? 'background-color: #f0f4ff; background: #f0f4ff;'
+                : 'background: linear-gradient(to bottom, #f0f4ff 0%, #eef2ff 100%); background-color: #f0f4ff;';
             
             return `
 <!DOCTYPE html>
@@ -249,7 +256,7 @@
                 <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                     <!-- Header -->
                     <tr>
-                        <td style="padding: 30px 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px 8px 0 0;">
+                        <td style="padding: 30px 40px; ${headerBg} border-radius: 8px 8px 0 0;">
                             <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: bold; font-family: Arial, sans-serif;">
                                 X-Stack Project Education Course
                             </h1>
@@ -267,7 +274,7 @@
                             </p>
                             
                             <p style="margin: 0 0 20px 0; color: #333333; font-size: 14px; line-height: 1.6; font-family: Arial, sans-serif;">
-                                This is the final status for the completion of Run #${escapeHtml(runNumber)}.
+                                This is the <strong>final status</strong> for the <strong>completion</strong> of Run #${escapeHtml(runNumber)}.
                             </p>
                             
                             <p style="margin: 0 0 10px 0; color: #333333; font-size: 14px; line-height: 1.6; font-family: Arial, sans-serif;">
@@ -276,15 +283,15 @@
                             
                             <ul style="margin: 0 0 20px 0; padding-left: 20px; color: #333333; font-size: 14px; line-height: 1.8; font-family: Arial, sans-serif;">
                                 <li style="margin-bottom: 10px;">
-                                    Presentation with finalized information.
+                                    <strong>Presentation</strong> with finalized information.
                                 </li>
                                 <li style="margin-bottom: 10px;">
-                                    File with statuses for all ${escapeHtml(studentsCount)} students who started run.
+                                    <strong>File</strong> with statuses for all <strong>${escapeHtml(studentsCount)}</strong> students who took part in this run.
                                 </li>
                             </ul>
                             
                             <p style="margin: 0 0 20px 0; color: #333333; font-size: 14px; line-height: 1.6; font-family: Arial, sans-serif;">
-                                Here is the video recording with the voiceover of the final presentation – <a href="${escapeHtml(videoLink)}" style="color: #667eea; text-decoration: none; font-weight: 600;">🎥 Watch Video Recording</a>.
+                                Here is the <strong>video recording</strong> with the voiceover of the final presentation – <a href="${escapeHtml(videoLink)}" style="color: #667eea; text-decoration: none; font-weight: 600;">🎥 Watch Video Recording</a>.
                             </p>
                             
                             <p style="margin: 0; color: #333333; font-size: 14px; line-height: 1.6; font-family: Arial, sans-serif;">
@@ -295,7 +302,7 @@
                     
                     <!-- Footer -->
                     <tr>
-                        <td style="padding: 20px 40px; background: linear-gradient(to bottom, #f0f4ff 0%, #eef2ff 100%); background-color: #f0f4ff; border-top: 2px solid #c7d2fe;">
+                        <td style="padding: 20px 40px; ${footerBg} border-top: 2px solid #c7d2fe;">
                             <p style="margin: 0; color: #6366f1; font-size: 12px; font-weight: 600; text-align: center; font-family: Arial, sans-serif;">
                                 X-Stack Project Education Course
                             </p>
@@ -318,12 +325,13 @@
         
         function updatePreview() {
             const preview = document.getElementById('preview');
-            const html = generateRunCompletionHTML();
-            preview.srcdoc = html;
+            preview.srcdoc = generateRunCompletionHTML(false);
+            const htmlCodeEl = document.getElementById('htmlCode');
+            if (htmlCodeEl) htmlCodeEl.value = generateRunCompletionHTML(true);
         }
         
         function copyRunCompletionHTML() {
-            const html = generateRunCompletionHTML();
+            const html = document.getElementById('htmlCode').value || generateRunCompletionHTML(true);
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(html).then(() => {
                     alert('✅ HTML copied to clipboard!');
@@ -353,12 +361,39 @@
         }
         
         function downloadRunCompletionHTML() {
-            const html = generateRunCompletionHTML();
+            const html = document.getElementById('htmlCode').value || generateRunCompletionHTML(true);
             const blob = new Blob([html], { type: 'text/html' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
             a.download = `Run_Completion_Run${document.getElementById('runNumber').value || '12'}.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        function downloadRunCompletionEMLTPL() {
+            const html = document.getElementById('htmlCode').value || generateRunCompletionHTML(true);
+            if (!html || html.length < 100) {
+                alert('Please generate the letter first (Update Preview)');
+                return;
+            }
+            const runNumber = document.getElementById('runNumber').value || '12';
+            const subject = `[GPE] Run Completion - Run#${runNumber}`;
+            const emltpl = [
+                'MIME-Version: 1.0',
+                'Content-Type: text/html; charset=UTF-8',
+                'Subject: ' + subject,
+                'X-Uniform-Type-Identifier: com.apple.mail.eml',
+                '',
+                html
+            ].join('\r\n');
+            const blob = new Blob([emltpl], { type: 'message/rfc822' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Run_Completion_Run${runNumber}.emltpl`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);

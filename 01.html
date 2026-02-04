@@ -59,15 +59,9 @@
         
         .content {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr;
             gap: 30px;
             padding: 30px;
-        }
-        
-        @media (max-width: 1200px) {
-            .content {
-                grid-template-columns: 1fr;
-            }
         }
         
         .form-section {
@@ -258,6 +252,7 @@
                     <button class="btn btn-primary" id="generateBtn" onclick="generateInitialLetter()">🔄 Update Preview</button>
                     <button class="btn btn-success" id="copyBtn" onclick="copyInitialHTML()">📋 Copy HTML</button>
                     <button class="btn btn-secondary" id="downloadBtn" onclick="downloadInitialHTML()">💾 Download HTML</button>
+                    <button class="btn btn-secondary" id="downloadEmltplBtn" onclick="downloadInitialEMLTPL()">📧 Download EMLTPL</button>
                     <button class="btn" style="background: #f59e0b; color: white; border: none;" onclick="window.open('09.html', '_blank')">📖 Instructions</button>
                 </div>
                 <div class="preview-container" id="initialPreview">
@@ -430,6 +425,37 @@
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
             showInitialAlert('✅ File downloaded!', 'success');
+        }
+        
+        function downloadInitialEMLTPL() {
+            const htmlCode = document.getElementById('htmlCode').value;
+            if (!htmlCode) {
+                showInitialAlert('Please generate the letter first', 'error');
+                return;
+            }
+            const startDateStr = document.getElementById('startDateInitial').value || 'initial';
+            const d = startDateStr !== 'initial' ? new Date(startDateStr + 'T12:00:00') : new Date();
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            const dateInLetter = isNaN(d.getTime()) ? '' : `${monthNames[d.getMonth()]} ${d.getDate()}`;
+            const subject = `[GPE] PE runs - ${dateInLetter}`;
+            const emltpl = [
+                'MIME-Version: 1.0',
+                'Content-Type: text/html; charset=UTF-8',
+                'Subject: ' + subject,
+                'X-Uniform-Type-Identifier: com.apple.mail.eml',
+                '',
+                htmlCode
+            ].join('\r\n');
+            const blob = new Blob([emltpl], { type: 'message/rfc822' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Initial_Email_${startDateStr}.emltpl`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showInitialAlert('✅ EMLTPL template downloaded!', 'success');
         }
         
         function showInitialAlert(message, type) {

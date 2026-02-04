@@ -59,15 +59,9 @@
         
         .content {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr;
             gap: 30px;
             padding: 30px;
-        }
-        
-        @media (max-width: 1200px) {
-            .content {
-                grid-template-columns: 1fr;
-            }
         }
         
         .form-section {
@@ -174,6 +168,35 @@
             border-radius: 6px;
             background: white;
         }
+        
+        .paste-area {
+            min-height: 150px;
+            padding: 15px;
+            border: 2px dashed #667eea;
+            border-radius: 6px;
+            background: #f8f9fa;
+            cursor: text;
+            transition: all 0.3s;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .paste-area:hover { background: #f0f4ff; border-color: #5568d3; }
+        .paste-area.has-data { background: #d4edda; border-color: #28a745; }
+        .paste-area p { color: #666; margin: 10px 0; }
+        .paste-area strong { color: #667eea; }
+        .hidden { display: none; }
+        .data-preview { margin-top: 15px; padding: 15px; background: white; border-radius: 6px; border: 2px solid #10b981; max-height: 400px; overflow-y: auto; }
+        .data-preview table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .data-preview th, .data-preview td { padding: 8px; text-align: left; border-bottom: 1px solid #e0e0e0; }
+        .data-preview th { background: #f8f9fa; font-weight: 600; }
+        .alert { padding: 15px; border-radius: 6px; margin-bottom: 20px; }
+        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .alert-warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        
     </style>
 </head>
 <body>
@@ -181,7 +204,7 @@
         <div class="header">
             <a href="index.html" class="back-link">← Back</a>
             <h1>🚀 06. KubeRocketCI Accounts Creation Request</h1>
-            <p>KubeRocketCI account creation request letter generator</p>
+            <p>Kube Rocket CI account creation request letter generator</p>
         </div>
         
         <div class="content">
@@ -189,7 +212,8 @@
             <div class="form-section">
                 <h2>📝 Enter Data</h2>
                 
-                <form id="kubeRocketCIForm">
+                <form id="kubeForm">
+                    <div id="kubeAlerts"></div>
                     <div class="form-group">
                         <label for="recipientName">Recipient Name:</label>
                         <input type="text" id="recipientName" value="Dmytro" required>
@@ -209,6 +233,15 @@
                         <label for="teamsLink">MS Teams Group Link:</label>
                         <input type="text" id="teamsLink" placeholder="https://..." required>
                     </div>
+                    
+                    <div class="form-group">
+                        <label>Paste table from Excel (Ctrl+V or Cmd+V):</label>
+                        <div class="paste-area" id="kubePasteArea" tabindex="0" contenteditable="true" style="min-height: 150px;">
+                            <p><strong>Click here and paste the table</strong></p>
+                            <p style="font-size: 12px; color: #999;">Expected columns: Student, EPAM Email, TeamLeader, Team</p>
+                        </div>
+                        <div id="kubeDataPreview" class="hidden"></div>
+                    </div>
                 </form>
             </div>
             
@@ -217,12 +250,19 @@
                 <h2>👁️ Preview</h2>
                 <div style="display: flex; gap: 10px; margin-bottom: 20px;">
                     <button class="btn btn-primary" onclick="updatePreview()">🔄 Update Preview</button>
-                    <button class="btn btn-success" onclick="copyKubeRocketCIHTML()">📋 Copy HTML</button>
-                    <button class="btn btn-secondary" onclick="downloadKubeRocketCIHTML()">💾 Download HTML</button>
+                    <button class="btn btn-success" onclick="copyKubeHTML()">📋 Copy HTML</button>
+                    <button class="btn btn-secondary" onclick="downloadKubeHTML()">💾 Download HTML</button>
+                    <button class="btn btn-secondary" onclick="downloadKubeEMLTPL()">📧 Download EMLTPL</button>
                     <button class="btn" style="background: #f59e0b; color: white; border: none;" onclick="window.open('09.html', '_blank')">📖 Instructions</button>
                 </div>
-                <iframe id="preview" src="about:blank"></iframe>
+                <div class="preview-container" style="background: white; border: 1px solid #e0e0e0; border-radius: 6px; padding: 0; max-height: 800px; overflow: hidden;">
+                    <iframe id="preview" src="about:blank" style="width: 100%; height: 750px; border: none;"></iframe>
+                </div>
             </div>
+        </div>
+        
+        <div id="htmlOutput" class="hidden">
+            <textarea id="htmlCode" readonly></textarea>
         </div>
         
         <div style="text-align: center; padding: 20px; background: #f8f9fa; border-top: 1px solid #e0e0e0; color: #666; font-size: 12px;">
@@ -231,11 +271,182 @@
     </div>
     
     <script>
-        function generateKubeRocketCIHTML() {
+        let kubeData = [];
+        let isParsingKube = false;
+        
+        const kubePasteArea = document.getElementById('kubePasteArea');
+        if (kubePasteArea) {
+            kubePasteArea.addEventListener('click', () => kubePasteArea.focus());
+            kubePasteArea.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+                const placeholderTexts = ['Data pasted', 'processing', 'Click here', 'Expected columns', 'Successfully loaded'];
+                const isPlaceholder = placeholderTexts.some(p => pastedText.toLowerCase().includes(p.toLowerCase()));
+                if (isPlaceholder || pastedText.trim().length < 30) {
+                    showKubeAlert('Please paste actual Excel data', 'warning');
+                    return;
+                }
+                if (isParsingKube) return;
+                isParsingKube = true;
+                kubePasteArea.innerHTML = '<p style="color: #10b981;"><strong>Data pasted, processing...</strong></p>';
+                parseKubeData(pastedText);
+            });
+        }
+        
+        function findColumnIndex(headers, possibleNames) {
+            for (let i = 0; i < headers.length; i++) {
+                const h = headers[i].toLowerCase();
+                for (const name of possibleNames) {
+                    if (h.includes(name.toLowerCase())) return i;
+                }
+            }
+            return -1;
+        }
+        
+        function parseKubeData(text) {
+            try {
+                const lines = text.split('\n').filter(line => line.trim());
+                if (lines.length < 2) {
+                    showKubeAlert('Error: No data to process', 'error');
+                    isParsingKube = false;
+                    return;
+                }
+                const headerLine = lines[0];
+                let headers = headerLine.split('\t').map(h => h.trim());
+                if (headers.length === 1) headers = headerLine.split(/[;,\t]/).map(h => h.trim());
+                
+                const studentIdx = findColumnIndex(headers, ['student', 'name']);
+                const emailIdx = findColumnIndex(headers, ['email', 'epam email', 'epam_email']);
+                const teamLeaderIdx = findColumnIndex(headers, ['teamleader', 'team leader']);
+                const teamIdx = findColumnIndex(headers, ['team']);
+                
+                if (studentIdx === -1) {
+                    showKubeAlert('Error: Student column not found', 'error');
+                    isParsingKube = false;
+                    kubePasteArea.innerHTML = '<p><strong>Click here and paste the table</strong></p><p style="font-size: 12px; color: #999;">Expected columns: Student, EPAM Email, TeamLeader, Team</p>';
+                    return;
+                }
+                
+                kubeData = [];
+                for (let i = 1; i < lines.length; i++) {
+                    let cells = lines[i].split('\t').map(c => c.trim());
+                    if (cells.length === 1) cells = lines[i].split(/[;,\t]/).map(c => c.trim());
+                    if (cells.length <= studentIdx) continue;
+                    const row = {
+                        student: (cells[studentIdx] || '').trim(),
+                        email: emailIdx !== -1 && cells.length > emailIdx ? (cells[emailIdx] || '').trim() : '',
+                        teamLeader: teamLeaderIdx !== -1 && cells.length > teamLeaderIdx ? (cells[teamLeaderIdx] || '').trim() : '',
+                        team: teamIdx !== -1 && cells.length > teamIdx ? (cells[teamIdx] || '').trim() : ''
+                    };
+                    if (row.student) kubeData.push(row);
+                }
+                
+                kubePasteArea.innerHTML = `<p style="color: #10b981;"><strong>Successfully loaded ${kubeData.length} records</strong></p>`;
+                kubePasteArea.classList.add('has-data');
+                updateKubeDataPreview();
+                showKubeAlert(`Loaded ${kubeData.length} records`, 'success');
+                setTimeout(() => { updatePreview(); }, 100);
+            } catch (err) {
+                showKubeAlert('Data error: ' + err.message, 'error');
+                console.error(err);
+            }
+            isParsingKube = false;
+        }
+        
+        function updateKubeDataPreview() {
+            const el = document.getElementById('kubeDataPreview');
+            if (!el) return;
+            if (!kubeData || kubeData.length === 0) { el.classList.add('hidden'); el.innerHTML = ''; return; }
+            let html = '<h3 style="margin-bottom: 10px; color: #10b981; font-size: 16px;">Data Preview (' + kubeData.length + '):</h3>';
+            html += '<div class="data-preview"><table><thead><tr><th>Student</th><th>EPAM Email</th><th>TeamLeader</th><th>Team</th></tr></thead><tbody>';
+            kubeData.slice(0, 10).forEach(r => {
+                html += `<tr><td>${escapeHtml(r.student)}</td><td>${escapeHtml(r.email)}</td><td>${escapeHtml(r.teamLeader)}</td><td>${escapeHtml(r.team)}</td></tr>`;
+            });
+            if (kubeData.length > 10) html += `<tr><td colspan="4" style="text-align:center;color:#999;">... and ${kubeData.length - 10} more</td></tr>`;
+            html += '</tbody></table></div>';
+            el.innerHTML = html;
+            el.classList.remove('hidden');
+            el.style.display = 'block';
+        }
+        
+        function showKubeAlert(message, type) {
+            let alerts = document.getElementById('kubeAlerts');
+            if (!alerts) {
+                alerts = document.createElement('div');
+                alerts.id = 'kubeAlerts';
+                document.getElementById('kubeForm').insertBefore(alerts, document.getElementById('kubeForm').firstChild);
+            }
+            alerts.innerHTML = '<div class="alert alert-' + type + '">' + escapeHtml(message) + '</div>';
+            setTimeout(() => { alerts.innerHTML = ''; }, 5000);
+        }
+        
+        function generateKubeHTML(forTemplate) {
             const recipientName = document.getElementById('recipientName').value || 'Dmytro';
             const runNumber = document.getElementById('runNumber').value || '16';
             const kbLink = document.getElementById('kbLink').value || '[LINK]';
             const teamsLink = document.getElementById('teamsLink').value || '[LINK]';
+            
+            const headerHTML = forTemplate
+                ? `
+                    <!-- Header (template: solid for email/download) -->
+                    <tr>
+                        <td bgcolor="#6366f1" style="padding: 30px 40px; background-color: #6366f1 !important;">
+                            <table cellspacing="0" cellpadding="0" border="0" width="100%" bgcolor="#6366f1" style="background-color: #6366f1 !important;">
+                                <tr>
+                                    <td bgcolor="#6366f1" style="background-color: #6366f1 !important;">
+                                        <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: bold; font-family: Arial, sans-serif; text-shadow: 0 1px 2px rgba(0,0,0,0.1);">X-Stack Project Education Course</h1>
+                                        <p style="margin: 8px 0 0 0; color: #f3f4f6; font-size: 16px; font-family: Arial, sans-serif;">Kube Rocket CI Accounts Creation Request</p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>`
+                : `
+                    <!-- Header (preview: gradient) -->
+                    <tr>
+                        <td bgcolor="#6366f1" style="background-color: #6366f1; padding: 30px 40px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);">
+                            <table cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <tr>
+                                    <td>
+                                        <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: bold; font-family: Arial, sans-serif; text-shadow: 0 1px 2px rgba(0,0,0,0.1);">X-Stack Project Education Course</h1>
+                                        <p style="margin: 8px 0 0 0; color: #f3f4f6; font-size: 16px; font-family: Arial, sans-serif;">Kube Rocket CI Accounts Creation Request</p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>`;
+            
+            const teamLeadersAndHelpers = (kubeData || []).filter(r => {
+                const t = (r.teamLeader || '').trim().toLowerCase();
+                return t === 'team leader' || t === 'helper';
+            });
+            const hasTable = teamLeadersAndHelpers.length > 0;
+            const listPhrase = hasTable
+                ? 'The list of team leaders and helpers is in the table below.'
+                : 'The students list is attached.';
+            let studentsTableHTML = '';
+            if (hasTable) {
+                const cellStyle = 'padding: 10px 12px; border: 1px solid #e0e0e0; font-size: 14px;';
+                studentsTableHTML = `
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 20px 0; border-collapse: collapse; border: 1px solid #e0e0e0; font-family: Arial, sans-serif;">
+                                <tr style="background: #f0f4ff;">
+                                    <td style="${cellStyle} font-weight: bold;">Student</td>
+                                    <td style="${cellStyle} font-weight: bold;">Email</td>
+                                    <td style="${cellStyle} font-weight: bold;">Team</td>
+                                </tr>
+                                ${teamLeadersAndHelpers.map(r => {
+                                    const isLeader = (r.teamLeader || '').trim().toLowerCase() === 'team leader';
+                                    const roleLabel = isLeader ? '(Team Lead)' : '(Helper)';
+                                    const nameBlock = escapeHtml(r.student) + '<br><span style="font-size: 11px; color: #666;">' + escapeHtml(roleLabel) + '</span>';
+                                    return `
+                                <tr>
+                                    <td style="${cellStyle}">${nameBlock}</td>
+                                    <td style="${cellStyle}">${escapeHtml(r.email)}</td>
+                                    <td style="${cellStyle}">${escapeHtml(r.team)}</td>
+                                </tr>`;
+                                }).join('')}
+                            </table>`;
+            }
             
             return `
 <!DOCTYPE html>
@@ -253,17 +464,7 @@
         <tr>
             <td style="padding: 40px 20px;">
                 <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <!-- Header -->
-                    <tr>
-                        <td style="padding: 30px 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px 8px 0 0;">
-                            <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: bold; font-family: Arial, sans-serif;">
-                                X-Stack Project Education Course
-                            </h1>
-                            <p style="margin: 10px 0 0 0; color: #ffffff; font-size: 16px; font-family: Arial, sans-serif;">
-                                KubeRocketCI Accounts Creation Request
-                            </p>
-                        </td>
-                    </tr>
+                    ${headerHTML}
                     
                     <!-- Content -->
                     <tr>
@@ -273,12 +474,13 @@
                             </p>
                             
                             <p style="margin: 0 0 20px 0; color: #333333; font-size: 14px; line-height: 1.6; font-family: Arial, sans-serif;">
-                                Could you please support with the KubeRocketCI account creation for Run#${escapeHtml(runNumber)} of Global Project Education?
+                                Could you please support with the Kube Rocket CI account creation for Run#${escapeHtml(runNumber)} of Global Project Education?
                             </p>
                             
                             <p style="margin: 0 0 20px 0; color: #333333; font-size: 14px; line-height: 1.6; font-family: Arial, sans-serif;">
-                                The students list is attached.
+                                ${listPhrase}
                             </p>
+                            ${studentsTableHTML}
                             
                             <ul style="margin: 0 0 20px 0; padding-left: 20px; color: #333333; font-size: 14px; line-height: 1.8; font-family: Arial, sans-serif;">
                                 <li style="margin-bottom: 10px;">
@@ -301,7 +503,7 @@
                     
                     <!-- Footer -->
                     <tr>
-                        <td style="padding: 20px 40px; background: linear-gradient(to bottom, #f0f4ff 0%, #eef2ff 100%); background-color: #f0f4ff; border-top: 2px solid #c7d2fe;">
+                        <td bgcolor="#f0f4ff" style="padding: 20px 40px; background: linear-gradient(to bottom, #f0f4ff 0%, #eef2ff 100%); background-color: #f0f4ff !important; border-top: 2px solid #c7d2fe;">
                             <p style="margin: 0; color: #6366f1; font-size: 12px; font-weight: 600; text-align: center; font-family: Arial, sans-serif;">
                                 X-Stack Project Education Course
                             </p>
@@ -324,15 +526,20 @@
         
         function updatePreview() {
             const preview = document.getElementById('preview');
-            const html = generateKubeRocketCIHTML();
-            preview.srcdoc = html;
+            preview.srcdoc = generateKubeHTML(false);
+            const htmlCodeEl = document.getElementById('htmlCode');
+            if (htmlCodeEl) htmlCodeEl.value = generateKubeHTML(true);
         }
         
-        function copyKubeRocketCIHTML() {
-            const html = generateKubeRocketCIHTML();
+        function copyKubeHTML() {
+            const html = document.getElementById('htmlCode').value || generateKubeHTML(true);
+            if (!html || html.length < 100) {
+                showKubeAlert('Please generate the letter first (Update Preview)', 'warning');
+                return;
+            }
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(html).then(() => {
-                    alert('✅ HTML copied to clipboard!');
+                    showKubeAlert('✅ HTML copied to clipboard!', 'success');
                 }).catch(err => {
                     console.error('Failed to copy:', err);
                     fallbackCopy(html);
@@ -358,8 +565,12 @@
             document.body.removeChild(textArea);
         }
         
-        function downloadKubeRocketCIHTML() {
-            const html = generateKubeRocketCIHTML();
+        function downloadKubeHTML() {
+            const html = document.getElementById('htmlCode').value || generateKubeHTML(true);
+            if (!html || html.length < 100) {
+                showKubeAlert('Please generate the letter first (Update Preview)', 'warning');
+                return;
+            }
             const blob = new Blob([html], { type: 'text/html' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -369,6 +580,35 @@
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
+            showKubeAlert('✅ File downloaded!', 'success');
+        }
+        
+        function downloadKubeEMLTPL() {
+            const html = document.getElementById('htmlCode').value || generateKubeHTML(true);
+            if (!html || html.length < 100) {
+                showKubeAlert('Please generate the letter first (Update Preview)', 'warning');
+                return;
+            }
+            const runNumber = document.getElementById('runNumber').value || '16';
+            const subject = `[GPE] Kube Rocket CI Accounts Creation Request - Run#${runNumber}`;
+            const emltpl = [
+                'MIME-Version: 1.0',
+                'Content-Type: text/html; charset=UTF-8',
+                'Subject: ' + subject,
+                'X-Uniform-Type-Identifier: com.apple.mail.eml',
+                '',
+                html
+            ].join('\r\n');
+            const blob = new Blob([emltpl], { type: 'message/rfc822' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `KubeRocketCI_Accounts_Creation_Request_Run${runNumber}.emltpl`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showKubeAlert('✅ EMLTPL template downloaded!', 'success');
         }
         
         // Initialize preview on load

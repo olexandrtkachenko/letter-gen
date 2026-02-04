@@ -59,15 +59,9 @@
         
         .content {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr;
             gap: 30px;
             padding: 30px;
-        }
-        
-        @media (max-width: 1200px) {
-            .content {
-                grid-template-columns: 1fr;
-            }
         }
         
         .form-section {
@@ -175,6 +169,34 @@
             background: white;
         }
         
+        .paste-area {
+            min-height: 150px;
+            padding: 15px;
+            border: 2px dashed #667eea;
+            border-radius: 6px;
+            background: #f8f9fa;
+            cursor: text;
+            transition: all 0.3s;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .paste-area:hover { background: #f0f4ff; border-color: #5568d3; }
+        .paste-area.has-data { background: #d4edda; border-color: #28a745; }
+        .paste-area p { color: #666; margin: 10px 0; }
+        .paste-area strong { color: #667eea; }
+        .hidden { display: none; }
+        .data-preview { margin-top: 15px; padding: 15px; background: white; border-radius: 6px; border: 2px solid #10b981; max-height: 400px; overflow-y: auto; }
+        .data-preview table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .data-preview th, .data-preview td { padding: 8px; text-align: left; border-bottom: 1px solid #e0e0e0; }
+        .data-preview th { background: #f8f9fa; font-weight: 600; }
+        .alert { padding: 15px; border-radius: 6px; margin-bottom: 20px; }
+        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .alert-warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        
     </style>
 </head>
 <body>
@@ -191,6 +213,7 @@
                 <h2>📝 Enter Data</h2>
                 
                 <form id="awsForm">
+                    <div id="awsAlerts"></div>
                     <div class="form-group">
                         <label for="recipientName">Recipient Name:</label>
                         <input type="text" id="recipientName" value="Dmytro" required>
@@ -210,20 +233,39 @@
                         <label for="teamsLink">MS Teams Group Link:</label>
                         <input type="text" id="teamsLink" placeholder="https://..." required>
                     </div>
+                    
+                    <div class="form-group">
+                        <label>Paste table from Excel (Ctrl+V or Cmd+V):</label>
+                        <div class="paste-area" id="awsPasteArea" tabindex="0" contenteditable="true" style="min-height: 150px;">
+                            <p><strong>Click here and paste the table</strong></p>
+                            <p style="font-size: 12px; color: #999;">Expected columns: Student, EPAM Email, TeamLeader, Team, Status</p>
+                        </div>
+                        <div id="awsDataPreview" class="hidden"></div>
+                    </div>
                 </form>
             </div>
             
             <!-- Preview Section -->
             <div class="preview-section">
                 <h2>👁️ Preview</h2>
-                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;">
                     <button class="btn btn-primary" onclick="updatePreview()">🔄 Update Preview</button>
                     <button class="btn btn-success" onclick="copyAWSHTML()">📋 Copy HTML</button>
                     <button class="btn btn-secondary" onclick="downloadAWSHTML()">💾 Download HTML</button>
+                    <button class="btn btn-secondary" onclick="downloadAWSEMLTPL()">📧 Download EMLTPL</button>
+                    <button class="btn btn-secondary" onclick="downloadAWSEMLTPLWithXLSX()" title="Letter + XLSX attachment">📧 EMLTPL + XLSX</button>
+                    <button class="btn" style="background: #0d9488; color: white; border: none;" onclick="downloadAWSListCSV()" title="Student, Email, Team, TeamLead">📄 Download CSV</button>
+                    <button class="btn" style="background: #059669; color: white; border: none;" onclick="downloadAWSListXLSX()" title="Student, Email, Team">📊 Download XLSX</button>
                     <button class="btn" style="background: #f59e0b; color: white; border: none;" onclick="window.open('09.html', '_blank')">📖 Instructions</button>
                 </div>
-                <iframe id="preview" src="about:blank"></iframe>
+                <div class="preview-container" style="background: white; border: 1px solid #e0e0e0; border-radius: 6px; padding: 0; max-height: 800px; overflow: hidden;">
+                    <iframe id="preview" src="about:blank" style="width: 100%; height: 750px; border: none;"></iframe>
+                </div>
             </div>
+        </div>
+        
+        <div id="htmlOutput" class="hidden">
+            <textarea id="htmlCode" readonly></textarea>
         </div>
         
         <div style="text-align: center; padding: 20px; background: #f8f9fa; border-top: 1px solid #e0e0e0; color: #666; font-size: 12px;">
@@ -232,11 +274,273 @@
     </div>
     
     <script>
-        function generateAWSHTML() {
+        let awsData = [];
+        let isParsingAWS = false;
+        
+        const awsPasteArea = document.getElementById('awsPasteArea');
+        if (awsPasteArea) {
+            awsPasteArea.addEventListener('click', () => awsPasteArea.focus());
+            awsPasteArea.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+                const placeholderTexts = ['Data pasted', 'processing', 'Click here', 'Expected columns', 'Successfully loaded'];
+                const isPlaceholder = placeholderTexts.some(p => pastedText.toLowerCase().includes(p.toLowerCase()));
+                if (isPlaceholder || pastedText.trim().length < 30) {
+                    showAWSAlert('Please paste actual Excel data', 'warning');
+                    return;
+                }
+                if (isParsingAWS) return;
+                isParsingAWS = true;
+                awsPasteArea.innerHTML = '<p style="color: #10b981;"><strong>Data pasted, processing...</strong></p>';
+                parseAWSData(pastedText);
+            });
+        }
+        
+        function findColumnIndex(headers, possibleNames) {
+            for (let i = 0; i < headers.length; i++) {
+                const h = headers[i].toLowerCase();
+                for (const name of possibleNames) {
+                    if (h.includes(name.toLowerCase())) return i;
+                }
+            }
+            return -1;
+        }
+        
+        function parseAWSData(text) {
+            try {
+                const lines = text.split('\n').filter(line => line.trim());
+                if (lines.length < 2) {
+                    showAWSAlert('Error: No data to process', 'error');
+                    isParsingAWS = false;
+                    return;
+                }
+                const headerLine = lines[0];
+                let headers = headerLine.split('\t').map(h => h.trim());
+                if (headers.length === 1) headers = headerLine.split(/[;,\t]/).map(h => h.trim());
+                
+                const studentIdx = findColumnIndex(headers, ['student', 'name']);
+                const emailIdx = findColumnIndex(headers, ['email', 'epam email', 'epam_email']);
+                const teamLeaderIdx = findColumnIndex(headers, ['teamleader', 'team leader']);
+                const teamIdx = findColumnIndex(headers, ['team']);
+                const statusIdx = findColumnIndex(headers, ['status', 'student status']);
+                
+                if (studentIdx === -1) {
+                    showAWSAlert('Error: Student column not found', 'error');
+                    isParsingAWS = false;
+                    awsPasteArea.innerHTML = '<p><strong>Click here and paste the table</strong></p><p style="font-size: 12px; color: #999;">Expected columns: Student, EPAM Email, TeamLeader, Team, Status</p>';
+                    return;
+                }
+                
+                awsData = [];
+                for (let i = 1; i < lines.length; i++) {
+                    let cells = lines[i].split('\t').map(c => c.trim());
+                    if (cells.length === 1) cells = lines[i].split(/[;,\t]/).map(c => c.trim());
+                    if (cells.length <= studentIdx) continue;
+                    const row = {
+                        student: (cells[studentIdx] || '').trim(),
+                        email: emailIdx !== -1 && cells.length > emailIdx ? (cells[emailIdx] || '').trim() : '',
+                        teamLeader: teamLeaderIdx !== -1 && cells.length > teamLeaderIdx ? (cells[teamLeaderIdx] || '').trim() : '',
+                        team: teamIdx !== -1 && cells.length > teamIdx ? (cells[teamIdx] || '').trim() : '',
+                        status: statusIdx !== -1 && cells.length > statusIdx ? (cells[statusIdx] || '').trim() : ''
+                    };
+                    if (row.student) awsData.push(row);
+                }
+                
+                awsPasteArea.innerHTML = `<p style="color: #10b981;"><strong>Successfully loaded ${awsData.length} records</strong></p>`;
+                awsPasteArea.classList.add('has-data');
+                updateAWSDataPreview();
+                showAWSAlert(`Loaded ${awsData.length} records`, 'success');
+                setTimeout(() => { updatePreview(); }, 100);
+            } catch (err) {
+                showAWSAlert('Data error: ' + err.message, 'error');
+                console.error(err);
+            }
+            isParsingAWS = false;
+        }
+        
+        function updateAWSDataPreview() {
+            const el = document.getElementById('awsDataPreview');
+            if (!el) return;
+            if (!awsData || awsData.length === 0) { el.classList.add('hidden'); el.innerHTML = ''; return; }
+            const activeCount = awsData.filter(r => (r.status || '').toLowerCase() !== 'dismissed').length;
+            let html = '<h3 style="margin-bottom: 10px; color: #10b981; font-size: 16px;">Data Preview (' + awsData.length + ', active: ' + activeCount + '):</h3>';
+            html += '<div class="data-preview"><table><thead><tr><th>Student</th><th>EPAM Email</th><th>TeamLeader</th><th>Team</th><th>Status</th></tr></thead><tbody>';
+            awsData.slice(0, 10).forEach(r => {
+                const isDismissed = (r.status || '').toLowerCase() === 'dismissed';
+                const rowStyle = isDismissed ? 'background-color: #fee2e2; color: #991b1b;' : '';
+                html += `<tr style="${rowStyle}"><td>${escapeHtml(r.student)}</td><td>${escapeHtml(r.email)}</td><td>${escapeHtml(r.teamLeader)}</td><td>${escapeHtml(r.team)}</td><td>${escapeHtml(r.status)}</td></tr>`;
+            });
+            if (awsData.length > 10) html += `<tr><td colspan="5" style="text-align:center;color:#999;">... and ${awsData.length - 10} more</td></tr>`;
+            html += '</tbody></table></div>';
+            el.innerHTML = html;
+            el.classList.remove('hidden');
+            el.style.display = 'block';
+        }
+        
+        function showAWSAlert(message, type) {
+            let alerts = document.getElementById('awsAlerts');
+            if (!alerts) {
+                alerts = document.createElement('div');
+                alerts.id = 'awsAlerts';
+                document.getElementById('awsForm').insertBefore(alerts, document.getElementById('awsForm').firstChild);
+            }
+            alerts.innerHTML = '<div class="alert alert-' + type + '">' + escapeHtml(message) + '</div>';
+            setTimeout(() => { alerts.innerHTML = ''; }, 5000);
+        }
+        
+        function getAWSListRows() {
+            const activeStudents = (awsData || []).filter(r => (r.status || '').toLowerCase() !== 'dismissed');
+            const byTeam = {};
+            activeStudents.forEach(r => {
+                const t = (r.team || '').trim() || 'No Team';
+                if (!byTeam[t]) byTeam[t] = [];
+                byTeam[t].push(r);
+            });
+            const teamNames = Object.keys(byTeam).sort();
+            const rows = [];
+            teamNames.forEach(team => {
+                const members = byTeam[team].slice().sort((a, b) => {
+                    const aTL = (a.teamLeader || '').trim().toLowerCase() === 'team leader';
+                    const bTL = (b.teamLeader || '').trim().toLowerCase() === 'team leader';
+                    if (aTL && !bTL) return -1;
+                    if (!aTL && bTL) return 1;
+                    return 0;
+                });
+                members.forEach(r => {
+                    const isTL = (r.teamLeader || '').trim().toLowerCase() === 'team leader';
+                    rows.push({ student: r.student || '', email: r.email || '', team: team, teamLead: isTL ? 'Team Lead' : '' });
+                });
+            });
+            return rows;
+        }
+        
+        function escapeCSVField(val) {
+            const s = String(val == null ? '' : val);
+            if (/[",\r\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+            return s;
+        }
+        
+        function downloadAWSListCSV() {
+            const rows = getAWSListRows();
+            if (rows.length === 0) {
+                showAWSAlert('Paste student data first', 'warning');
+                return;
+            }
+            const header = 'Student,Email,Team,TeamLead';
+            const lines = [header].concat(rows.map(r => escapeCSVField(r.student) + ',' + escapeCSVField(r.email) + ',' + escapeCSVField(r.team) + ',' + escapeCSVField(r.teamLead)));
+            const csv = '\uFEFF' + lines.join('\r\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'AWS_students_Run' + (document.getElementById('runNumber').value || '16') + '.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showAWSAlert('CSV downloaded', 'success');
+        }
+        
+        function downloadAWSListXLSX() {
+            const rows = getAWSListRows();
+            if (rows.length === 0) {
+                showAWSAlert('Paste student data first', 'warning');
+                return;
+            }
+            if (typeof XLSX === 'undefined') {
+                showAWSAlert('XLSX library loading… Try again in a moment.', 'warning');
+                const script = document.createElement('script');
+                script.src = 'https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js';
+                script.onload = () => downloadAWSListXLSX();
+                document.head.appendChild(script);
+                return;
+            }
+            const data = [['Student', 'Email', 'Team', 'TeamLead']].concat(rows.map(r => [r.student, r.email, r.team, r.teamLead]));
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Students');
+            XLSX.writeFile(wb, 'AWS_students_Run' + (document.getElementById('runNumber').value || '16') + '.xlsx');
+            showAWSAlert('XLSX downloaded', 'success');
+        }
+        
+        function generateAWSHTML(forTemplate) {
             const recipientName = document.getElementById('recipientName').value || 'Dmytro';
             const runNumber = document.getElementById('runNumber').value || '16';
             const kbLink = document.getElementById('kbLink').value || '[LINK]';
             const teamsLink = document.getElementById('teamsLink').value || '[LINK]';
+            
+            const headerHTML = forTemplate
+                ? `
+                    <!-- Header (template: solid for email/download) -->
+                    <tr>
+                        <td bgcolor="#6366f1" style="padding: 30px 40px; background-color: #6366f1 !important;">
+                            <table cellspacing="0" cellpadding="0" border="0" width="100%" bgcolor="#6366f1" style="background-color: #6366f1 !important;">
+                                <tr>
+                                    <td bgcolor="#6366f1" style="background-color: #6366f1 !important;">
+                                        <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: bold; font-family: Arial, sans-serif; text-shadow: 0 1px 2px rgba(0,0,0,0.1);">X-Stack Project Education Course</h1>
+                                        <p style="margin: 8px 0 0 0; color: #f3f4f6; font-size: 16px; font-family: Arial, sans-serif;">AWS Accounts Creation Request</p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>`
+                : `
+                    <!-- Header (preview: gradient) -->
+                    <tr>
+                        <td bgcolor="#6366f1" style="background-color: #6366f1; padding: 30px 40px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);">
+                            <table cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <tr>
+                                    <td>
+                                        <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: bold; font-family: Arial, sans-serif; text-shadow: 0 1px 2px rgba(0,0,0,0.1);">X-Stack Project Education Course</h1>
+                                        <p style="margin: 8px 0 0 0; color: #f3f4f6; font-size: 16px; font-family: Arial, sans-serif;">AWS Accounts Creation Request</p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>`;
+            
+            const activeStudents = (awsData || []).filter(r => (r.status || '').toLowerCase() !== 'dismissed');
+            const byTeam = {};
+            activeStudents.forEach(r => {
+                const t = (r.team || '').trim() || 'No Team';
+                if (!byTeam[t]) byTeam[t] = [];
+                byTeam[t].push(r);
+            });
+            const teamNames = Object.keys(byTeam).sort();
+            const hasTable = activeStudents.length > 0;
+            const listPhrase = hasTable
+                ? 'The list of students (by team) is in the table below. Team leaders are highlighted.'
+                : 'The students list is attached.';
+            let studentsTableHTML = '';
+            if (hasTable) {
+                const cellStyle = 'padding: 6px 10px; border: 1px solid #e0e0e0; font-size: 12px;';
+                const tlRowStyle = 'background-color: #dbeafe;';
+                const rows = [];
+                teamNames.forEach(team => {
+                    const members = byTeam[team].slice().sort((a, b) => {
+                        const aTL = (a.teamLeader || '').trim().toLowerCase() === 'team leader';
+                        const bTL = (b.teamLeader || '').trim().toLowerCase() === 'team leader';
+                        if (aTL && !bTL) return -1;
+                        if (!aTL && bTL) return 1;
+                        return 0;
+                    });
+                    members.forEach(r => {
+                        const isTL = (r.teamLeader || '').trim().toLowerCase() === 'team leader';
+                        const rowStyle = isTL ? tlRowStyle : '';
+                        const studentCell = isTL ? escapeHtml(r.student) + ' <strong style="color: #1d4ed8;">(Team Lead)</strong>' : escapeHtml(r.student);
+                        rows.push(`<tr style="${rowStyle}"><td style="${cellStyle}">${studentCell}</td><td style="${cellStyle}">${escapeHtml(r.email)}</td><td style="${cellStyle}">${escapeHtml(team)}</td></tr>`);
+                    });
+                });
+                studentsTableHTML = `
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 20px 0; border-collapse: collapse; border: 1px solid #e0e0e0; font-family: Arial, sans-serif; font-size: 12px;">
+                                <tr style="background: #f0f4ff;">
+                                    <td style="${cellStyle} font-weight: bold;">Student</td>
+                                    <td style="${cellStyle} font-weight: bold;">Email</td>
+                                    <td style="${cellStyle} font-weight: bold;">Team</td>
+                                </tr>
+                                ${rows.join('')}
+                            </table>`;
+            }
             
             return `
 <!DOCTYPE html>
@@ -254,17 +558,7 @@
         <tr>
             <td style="padding: 40px 20px;">
                 <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <!-- Header -->
-                    <tr>
-                        <td style="padding: 30px 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px 8px 0 0;">
-                            <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: bold; font-family: Arial, sans-serif;">
-                                X-Stack Project Education Course
-                            </h1>
-                            <p style="margin: 10px 0 0 0; color: #ffffff; font-size: 16px; font-family: Arial, sans-serif;">
-                                AWS Accounts Creation Request
-                            </p>
-                        </td>
-                    </tr>
+                    ${headerHTML}
                     
                     <!-- Content -->
                     <tr>
@@ -278,8 +572,13 @@
                             </p>
                             
                             <p style="margin: 0 0 20px 0; color: #333333; font-size: 14px; line-height: 1.6; font-family: Arial, sans-serif;">
-                                The students list is attached.
+                                Please create git repositories for the respective teams.
                             </p>
+                            
+                            <p style="margin: 0 0 20px 0; color: #333333; font-size: 14px; line-height: 1.6; font-family: Arial, sans-serif;">
+                                ${listPhrase}
+                            </p>
+                            ${studentsTableHTML}
                             
                             <ul style="margin: 0 0 20px 0; padding-left: 20px; color: #333333; font-size: 14px; line-height: 1.8; font-family: Arial, sans-serif;">
                                 <li style="margin-bottom: 10px;">
@@ -302,7 +601,7 @@
                     
                     <!-- Footer -->
                     <tr>
-                        <td style="padding: 20px 40px; background: linear-gradient(to bottom, #f0f4ff 0%, #eef2ff 100%); background-color: #f0f4ff; border-top: 2px solid #c7d2fe;">
+                        <td bgcolor="#f0f4ff" style="padding: 20px 40px; background: linear-gradient(to bottom, #f0f4ff 0%, #eef2ff 100%); background-color: #f0f4ff !important; border-top: 2px solid #c7d2fe;">
                             <p style="margin: 0; color: #6366f1; font-size: 12px; font-weight: 600; text-align: center; font-family: Arial, sans-serif;">
                                 X-Stack Project Education Course
                             </p>
@@ -325,15 +624,20 @@
         
         function updatePreview() {
             const preview = document.getElementById('preview');
-            const html = generateAWSHTML();
-            preview.srcdoc = html;
+            preview.srcdoc = generateAWSHTML(false);
+            const htmlCodeEl = document.getElementById('htmlCode');
+            if (htmlCodeEl) htmlCodeEl.value = generateAWSHTML(true);
         }
         
         function copyAWSHTML() {
-            const html = generateAWSHTML();
+            const html = document.getElementById('htmlCode').value || generateAWSHTML(true);
+            if (!html || html.length < 100) {
+                showAWSAlert('Please generate the letter first (Update Preview)', 'warning');
+                return;
+            }
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(html).then(() => {
-                    alert('✅ HTML copied to clipboard!');
+                    showAWSAlert('✅ HTML copied to clipboard!', 'success');
                 }).catch(err => {
                     console.error('Failed to copy:', err);
                     fallbackCopy(html);
@@ -360,7 +664,11 @@
         }
         
         function downloadAWSHTML() {
-            const html = generateAWSHTML();
+            const html = document.getElementById('htmlCode').value || generateAWSHTML(true);
+            if (!html || html.length < 100) {
+                showAWSAlert('Please generate the letter first (Update Preview)', 'warning');
+                return;
+            }
             const blob = new Blob([html], { type: 'text/html' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -370,6 +678,100 @@
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
+            showAWSAlert('✅ File downloaded!', 'success');
+        }
+        
+        function downloadAWSEMLTPL() {
+            const html = document.getElementById('htmlCode').value || generateAWSHTML(true);
+            if (!html || html.length < 100) {
+                showAWSAlert('Please generate the letter first (Update Preview)', 'warning');
+                return;
+            }
+            const runNumber = document.getElementById('runNumber').value || '16';
+            const subject = `[GPE] AWS Accounts Creation Request - Run#${runNumber}`;
+            const emltpl = [
+                'MIME-Version: 1.0',
+                'Content-Type: text/html; charset=UTF-8',
+                'Subject: ' + subject,
+                'X-Uniform-Type-Identifier: com.apple.mail.eml',
+                '',
+                html
+            ].join('\r\n');
+            const blob = new Blob([emltpl], { type: 'message/rfc822' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `AWS_Accounts_Creation_Request_Run${runNumber}.emltpl`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showAWSAlert('✅ EMLTPL template downloaded!', 'success');
+        }
+        
+        function downloadAWSEMLTPLWithXLSX() {
+            const rows = getAWSListRows();
+            const html = document.getElementById('htmlCode').value || generateAWSHTML(true);
+            if (rows.length === 0) {
+                showAWSAlert('Paste student data first', 'warning');
+                return;
+            }
+            if (!html || html.length < 100) {
+                showAWSAlert('Please generate the letter first (Update Preview)', 'warning');
+                return;
+            }
+            if (typeof XLSX === 'undefined') {
+                showAWSAlert('Loading XLSX… Try again in a moment.', 'warning');
+                const script = document.createElement('script');
+                script.src = 'https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js';
+                script.onload = () => downloadAWSEMLTPLWithXLSX();
+                document.head.appendChild(script);
+                return;
+            }
+            const runNumber = document.getElementById('runNumber').value || '16';
+            const subject = `[GPE] AWS Accounts Creation Request - Run#${runNumber}`;
+            const xlsxFilename = 'AWS_students_Run' + runNumber + '.xlsx';
+            const data = [['Student', 'Email', 'Team', 'TeamLead']].concat(rows.map(r => [r.student, r.email, r.team, r.teamLead]));
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Students');
+            const xlsxArray = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+            const bytes = new Uint8Array(xlsxArray);
+            let binary = '';
+            for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+            const base64Xlsx = btoa(binary);
+            const boundary = '----=_Part_' + Date.now();
+            const emltpl = [
+                'MIME-Version: 1.0',
+                'Content-Type: multipart/mixed; boundary="' + boundary + '"',
+                'Subject: ' + subject,
+                'X-Uniform-Type-Identifier: com.apple.mail.eml',
+                '',
+                '--' + boundary,
+                'Content-Type: text/html; charset=UTF-8',
+                'Content-Transfer-Encoding: 8bit',
+                '',
+                html,
+                '',
+                '--' + boundary,
+                'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; name="' + xlsxFilename + '"',
+                'Content-Transfer-Encoding: base64',
+                'Content-Disposition: attachment; filename="' + xlsxFilename + '"',
+                '',
+                base64Xlsx.replace(/(.{76})/g, '$1\r\n'),
+                '',
+                '--' + boundary + '--'
+            ].join('\r\n');
+            const blob = new Blob([emltpl], { type: 'message/rfc822' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'AWS_Accounts_Creation_Request_Run' + runNumber + '_with_list.emltpl';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showAWSAlert('EMLTPL + XLSX downloaded! Open in Mail – letter and list are attached.', 'success');
         }
         
         // Initialize preview on load

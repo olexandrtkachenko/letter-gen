@@ -32,7 +32,7 @@ Professional letter generator for X-Stack Project Education Course based on Exce
 6. Copy HTML or download the file
 7. Use the Instructions page for detailed guide
 
-## Contacts
+## Developer
 
-Oleksandr Tkachenko - [Oleksandr_Tkachenko](mailto:Oleksandr_Tkachenko3@epam.com)
+Oleksandr Tkachenko - [Oleksandr_Tkachenko3@epam.com](mailto:Oleksandr_Tkachenko3@epam.com)
 
